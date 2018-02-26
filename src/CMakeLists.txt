@@ -3,7 +3,7 @@ project(moducom_memory)
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_executable(src
+add_library(moducom_memory_lib STATIC
         mc/array-helper.h
         mc/linkedlist.cpp
         mc/linkedlist.h
@@ -20,5 +20,5 @@ add_executable(src
         string.cpp)
 
 # create export group, doesn't work yet
-install ( TARGETS src EXPORT moducom_memory )
+# install ( TARGETS src EXPORT moducom_memory )
 
