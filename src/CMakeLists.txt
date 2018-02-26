@@ -3,7 +3,7 @@ project(moducom_memory)
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_library(moducom_memory_lib STATIC
+set(SOURCE_FILES
         mc/array-helper.h
         mc/linkedlist.cpp
         mc/linkedlist.h
@@ -18,6 +18,8 @@ add_library(moducom_memory_lib STATIC
         MemoryPool.cpp
         MemoryPool.h
         string.cpp)
+
+add_library(moducom_memory_lib ${SOURCE_FILES})
 
 # create export group, doesn't work yet
 # install ( TARGETS src EXPORT moducom_memory )
