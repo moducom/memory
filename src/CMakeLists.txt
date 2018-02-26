@@ -18,3 +18,7 @@ add_executable(src
         MemoryPool.cpp
         MemoryPool.h
         string.cpp)
+
+# create export group, doesn't work yet
+install ( TARGETS src EXPORT moducom_memory )
+
