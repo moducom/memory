@@ -17,6 +17,7 @@ set(SOURCE_FILES
         mc/memory_index2.h
         mc/memory_pool.h
         mc/string.h
+        mc/objstack.h
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h

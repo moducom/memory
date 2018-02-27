@@ -112,9 +112,15 @@ public:
     void length(size_t l) { this->m_length = l; }
     size_t length() const { return base_t::length(); }
 
-    // remove const modifier since we're not read only here
     uint8_t* data() const { return m_data; }
     void data(uint8_t* value) { m_data = value; }
+
+    template <class TMemoryChunk>
+    MemoryChunk(TMemoryChunk chunk) :
+        // FIX: We need to split out more ReadOnlyMemoryChunks, for now
+        // we have this nasty const-dropper
+        base_t((uint8_t*)chunk.data(), chunk.length())
+    {}
 
     MemoryChunk(uint8_t* data, size_t length) : base_t(data, length)
     {
@@ -160,10 +166,15 @@ public:
     // Would prefer memorychunk itself to be more constant, perhaps we can
     // have a "ProcessedMemoryChunk" which includes a pos in it... ? or maybe
     // instead a ConstMemoryChunk just for those occasions..
-    void advance_experimental(size_t pos) { m_data += pos; m_length -= pos; }
+    void advance_experimental(size_t pos)
+    {
+        ASSERT_ERROR(true, pos < length(), "pos >= length");
+        m_data += pos; m_length -= pos;
+    }
 };
 
 namespace layer1 {
+
 
 template <size_t buffer_length>
 class MemoryChunk
@@ -176,6 +187,7 @@ protected:
 
 public:
     size_t length() const { return buffer_length; }
+    // TODO: Split this out into the readonly variety
     const uint8_t* data(size_t offset = 0) const { return buffer + offset; }
 
     // copies in length bytes from specified incoming buffer
@@ -223,6 +235,9 @@ class MemoryChunk :
     typedef layer1::MemoryChunk<buffer_length> base_t;
 
 public:
+    // defaults to exact size of fixed buffer
+    MemoryChunk(custom_size_t length = buffer_length) { this->length(length); }
+
     inline custom_size_t length() const { return MemoryChunkBase<custom_size_t>::m_length; }
     inline void length(custom_size_t l) { MemoryChunkBase<custom_size_t>::m_length = l; }
 

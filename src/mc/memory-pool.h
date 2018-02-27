@@ -91,18 +91,20 @@ class PoolBaseBase
 
 protected:
     template <class TArg1>
-    inline static T& allocate(TArg1 arg1, T* items, size_t max_count)
+    inline static T* allocate(TArg1 arg1, T* items, size_t max_count)
     {
         for(int i = 0; i < max_count; i++)
         {
-            T& candidate = items[i];
+            T* candidate = &items[i];
 
-            if(traits_t::is_free(candidate))
+            if(traits_t::is_free(*candidate))
             {
-                new (&candidate) T(arg1);
+                new (candidate) T(arg1);
                 return candidate;
             }
         }
+
+        return NULLPTR;
     }
 
     inline static size_t count(const T* items, size_t max_count)
@@ -120,13 +122,13 @@ protected:
         return c;
     }
 
-    inline static void free(T* items, size_t max_count, T& item)
+    inline static void free(T* items, size_t max_count, T* item)
     {
         for(int i = 0; i < max_count; i++)
         {
             T& candidate = items[i];
 
-            if(&item == &candidate)
+            if(item == &candidate)
             {
                 traits_t::free(candidate);
                 return;
@@ -154,7 +156,7 @@ public:
         items(items), max_count(max_count) {}
 
     template <class TArg1>
-    T& allocate(TArg1 arg1)
+    T* allocate(TArg1 arg1)
     {
         return base_t::allocate(arg1, items, max_count);
     }
@@ -237,12 +239,12 @@ public:
     }
 #else
     template <class TArg1>
-    T& allocate(TArg1 arg1)
+    T* allocate(TArg1 arg1)
     {
         return base_t::allocate(arg1, items, max_count);
     }
 
-    T& allocate()
+    T* allocate()
     {
         for(int i = 0; i < max_count; i++)
         {
@@ -251,14 +253,16 @@ public:
             if(traits_t::is_free(candidate))
             {
                 new (&candidate) T();
-                return candidate;
+                return &candidate;
             }
         }
+
+        return NULLPTR;
     }
 #endif
 
 
-    void free(T& item)
+    void free(T* item)
     {
         base_t::free(items, max_count, item);
     }
