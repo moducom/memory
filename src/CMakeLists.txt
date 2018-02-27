@@ -24,7 +24,7 @@ set(SOURCE_FILES
 
 add_library(moducom_memory_lib ${SOURCE_FILES})
 
-add_executable(moducom_memory ${SOURCE_FILES} tests/main-test.cpp)
+# add_executable(moducom_memory ${SOURCE_FILES} tests/main-test.cpp)
 
 # create export group, doesn't work yet
 # install ( TARGETS src EXPORT moducom_memory )
