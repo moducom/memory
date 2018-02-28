@@ -1,5 +1,3 @@
-//#include <iostream>
-
 #ifdef _MSC_BUILD
 #define CATCH_CONFIG_RUNNER
 #else
@@ -8,18 +6,3 @@
 
 
 #include "catch.hpp"
-
-TEST_CASE("main", "[main]")
-{
-
-}
-
-/*
-using namespace std;
-
-int main()
-{
-    cout << "Hello World!" << endl;
-    return 0;
-}
-*/
