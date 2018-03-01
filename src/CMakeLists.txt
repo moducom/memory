@@ -17,7 +17,7 @@ set(SOURCE_FILES
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h
-        string.cpp)
+        string.cpp exp/netbuf.h)
 
 add_library(moducom_memory_lib ${SOURCE_FILES})
 
