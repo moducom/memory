@@ -8,22 +8,14 @@ namespace moducom { namespace io { namespace experimental {
 
 
 template <class TMemoryChunk>
-class NetBufMemoryWriterTemplate
+class NetBufMemoryTemplate
 {
+protected:
     TMemoryChunk chunk;
     size_t pos;
 
 public:
-    NetBufMemoryWriterTemplate() : pos(0) {}
-
-    // get data buffer currently available
-    moducom::pipeline::MemoryChunk data() const
-    {
-        // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
-        // nasty typecast
-        return moducom::pipeline::MemoryChunk(
-                (uint8_t*)chunk.data(pos), chunk.length() - pos);
-    }
+    NetBufMemoryTemplate() : pos(0) {}
 
     void advance(size_t advance_bytes) { pos += advance_bytes; }
 
@@ -35,9 +27,24 @@ public:
     size_t length() { return chunk.length(); }
 };
 
+template <class TMemoryChunk>
+class NetBufMemoryWriterTemplate : public NetBufMemoryTemplate<TMemoryChunk>
+{
+    typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
+
+public:
+    // get data buffer currently available
+    moducom::pipeline::MemoryChunk data() const
+    {
+        // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
+        // nasty typecast
+        return moducom::pipeline::MemoryChunk(
+                (uint8_t*)base_t::chunk.data(base_t::pos), base_t::chunk.length() - base_t::pos);
+    }
+};
 
 template <class TMemoryChunk>
-class NetBufMemoryReaderTemplate
+class NetBufMemoryReaderTemplate : public NetBufMemoryTemplate<TMemoryChunk>
 {
 
 };
