@@ -220,19 +220,23 @@ public:
 class MemoryBuffer : public Memory::SmartHandle
 {
     size_t size;
+    typedef Memory::SmartHandle base_t;
 
 public:
     MemoryBuffer(Memory::handle_t handle, size_t size, Memory& memory = Memory::default_pool) :
-            size(size),
-            Memory::SmartHandle(handle, memory) {}
+            base_t(handle, memory),
+            size(size)
+            {}
 
     MemoryBuffer(Memory::SmartHandle& copy_from, size_t size) :
-            size(size),
-            Memory::SmartHandle(copy_from) {}
+            base_t(copy_from),
+            size(size)
+            {}
 
     MemoryBuffer(MemoryBuffer& copy_from) :
-            size(copy_from.size),
-            Memory::SmartHandle(copy_from) {}
+            base_t(copy_from),
+            size(copy_from.size)
+            {}
 
     size_t length() const { return size; }
 

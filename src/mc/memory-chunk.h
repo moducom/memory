@@ -351,8 +351,9 @@ public:
 
     PipelineMessage() : status(NULLPTR) {}
 
-    PipelineMessage(uint8_t* data, size_t length) : status(NULLPTR),
-                                                    MemoryChunk(data, length)
+    PipelineMessage(uint8_t* data, size_t length) :
+        MemoryChunk(data, length),
+        status(NULLPTR)
     {
         copied_status.user = 0;
         copied_status.boundary = 0;
