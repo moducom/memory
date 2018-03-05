@@ -72,6 +72,15 @@ public:
         return ReadOnlyMemoryChunk(m_data + pos, length() - pos);
     }
 
+    // Somewhat opposite of remainder, create new chunk from the
+    // first byte to the specified length
+    ReadOnlyMemoryChunk subset(size_t length) const
+    {
+        // TODO: Assert that length doesn't override boundaries
+
+        return ReadOnlyMemoryChunk(m_data, length);
+    }
+
     // copies out of this chunk to array
     inline void copy_to(void* _copy_to) const
     {
@@ -215,6 +224,13 @@ public:
     inline int compare(const void* compare_against, size_t length)
     {
         return ::memcmp(buffer, compare_against, length);
+    }
+
+    pipeline::MemoryChunk::readonly_t subset(size_t length) const
+    {
+        // TODO: Assert that length doesn't override boundaries
+
+        return pipeline::MemoryChunk::readonly_t((uint8_t*)data(), length);
     }
 
     inline uint8_t& operator[](size_t index)
