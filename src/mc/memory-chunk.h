@@ -45,13 +45,18 @@ protected:
     ReadOnlyMemoryChunk() {}
 
 public:
-    ReadOnlyMemoryChunk(uint8_t* data, size_t length) :
-            m_data(data)
+    ReadOnlyMemoryChunk(const uint8_t* data, size_t length) :
+            // NOTE: semi faking this because regular MemoryChunk derives from
+            // this class.  One step short of a kludge if we are careful to really
+            // const our way through all of ReadOnlyMemoryChunk
+            m_data((uint8_t*)data)
     {
         this->m_length = length;
     }
 
     // EXPERIMENTAL - string version
+    // TODO: Get rid of this, I don't like it - I want something a little more
+    // typedef'd and not accidentally binary
     ReadOnlyMemoryChunk(const char* str)
     {
         m_data = (uint8_t*)str;
