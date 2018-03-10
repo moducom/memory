@@ -19,5 +19,12 @@ TEST_CASE("Experimental tests", "[experimental]")
 
         REQUIRE(chunk.length() == 128);
         REQUIRE(writer.length() == 128);
+
+        layer2::NetBufHelper<layer2::NetBufMemoryWriter<128>> nbh(writer);
+
+        nbh.advance(10);
+        auto reduced_len = nbh.data().length();
+
+        REQUIRE(reduced_len == 118);
     }
 }
