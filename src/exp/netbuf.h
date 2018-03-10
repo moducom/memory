@@ -46,7 +46,17 @@ public:
 template <class TMemoryChunk>
 class NetBufMemoryReaderTemplate : public NetBufMemoryTemplate<TMemoryChunk>
 {
+    typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
 
+public:
+    // get data buffer currently available
+    moducom::pipeline::MemoryChunk::readonly_t data() const
+    {
+        // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
+        // nasty typecast
+        return moducom::pipeline::MemoryChunk::readonly_t(
+                (uint8_t*)base_t::chunk.data(base_t::pos), base_t::chunk.length() - base_t::pos);
+    }
 };
 
 
