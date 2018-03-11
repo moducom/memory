@@ -49,7 +49,7 @@ TEST_CASE("General memory tests", "[memory]")
         // FIX: no destructor is gonna get called cuz not yet a virtual
         delete memory;
     }
-    SECTION("overloaded new")
+    SECTION("overloaded new 1")
     {
         // although not marked as such, overloaded new is currently experimental
 
@@ -65,6 +65,20 @@ TEST_CASE("General memory tests", "[memory]")
         t->~Tester1();
 
         memory->free(h);
+
+        delete memory;
+    }
+    SECTION("overloaded new 2")
+    {
+        // although not marked as such, overloaded new is currently experimental
+
+        // just dynamically allocating this one for fun
+        IMemory* memory = new Memory();
+        MemoryTuple tuple(*memory);
+
+        Tester1* t = new (tuple) Tester2;
+
+        tuple.del(t);
 
         delete memory;
     }

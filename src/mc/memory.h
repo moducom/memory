@@ -7,6 +7,10 @@
 
 namespace moducom { namespace dynamic {
 
+// IDEA: Consider architecture where handles are globally segregated across
+// many global memory handles, perhaps reserving top 3 bits for which handler
+// they are associated with.  For embedded scenarios, this could be very
+// helpful as we may only have a smattering of a few global memory handlers
 class IMemory
 {
 protected:
@@ -258,6 +262,39 @@ public:
     T* lock() { return MemoryBuffer::lock<T>(); }
 };
 
+
+// EXPERIMENTAL
+// bundle of IMemory* and memory handle, kind of like a SmartHandle is
+// supposed to be, but simpler
+class MemoryTuple
+{
+public:
+    IMemory::handle_opaque_t handle;
+    IMemory& memory;
+
+    MemoryTuple(IMemory& memory) : memory(memory) {}
+
+    template <class T>
+    T* lock() { return (T*)memory.lock(handle); }
+
+    void unlock() { memory.unlock(handle); }
+
+    void free() { memory.free(handle); }
+
+    void unlock_and_free()
+    {
+        unlock();
+        free();
+    }
+
+    template <class T>
+    void del(T* o)
+    {
+        o->~T();
+        unlock_and_free();
+    }
+};
+
 }}
 
 // experimental, seems to work
@@ -266,6 +303,14 @@ inline void* operator new(size_t count, moducom::dynamic::IMemory& m,
 {
     *h = m.allocate(count);
     return m.lock(*h);
+}
+
+
+// experimental
+inline void* operator new(size_t count, moducom::dynamic::MemoryTuple& tuple)
+{
+    tuple.handle = tuple.memory.allocate(count);
+    return tuple.memory.lock(tuple.handle);
 }
 
 
