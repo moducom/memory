@@ -8,6 +8,8 @@
 
 namespace moducom { namespace dynamic {
 
+// TODO: split this out into layer varieties
+// TODO: adapt to utilize IMemory, if we can
 //template <class TMemoryChunk = pipeline::MemoryChunk>
 class ObjStack : public pipeline::MemoryChunk
 {
