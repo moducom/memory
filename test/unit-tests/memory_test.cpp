@@ -9,6 +9,24 @@
 
 using namespace moducom::dynamic;
 
+struct Tester1
+{
+    char t[10];
+
+    virtual ~Tester1()
+    {
+        t[0] = 3;
+    }
+};
+
+struct Tester2 : public Tester1
+{
+    virtual ~Tester2()
+    {
+        t[1] = 4;
+    }
+};
+
 TEST_CASE("General memory tests", "[memory]")
 {
     SECTION("Free/not free checks")
@@ -29,6 +47,25 @@ TEST_CASE("General memory tests", "[memory]")
 #endif
 
         // FIX: no destructor is gonna get called cuz not yet a virtual
+        delete memory;
+    }
+    SECTION("overloaded new")
+    {
+        // although not marked as such, overloaded new is currently experimental
+
+        // just dynamically allocating this one for fun
+        IMemory* memory = new Memory();
+        IMemory::handle_opaque_t h;
+
+        Tester1* t = new (*memory, &h) Tester2;
+
+        // Doesn't seem to actually call memory free itself
+        //delete (*memory, h, t);
+
+        t->~Tester1();
+
+        memory->free(h);
+
         delete memory;
     }
 }

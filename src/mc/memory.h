@@ -260,3 +260,23 @@ public:
 
 }}
 
+// experimental, seems to work
+inline void* operator new(size_t count, moducom::dynamic::IMemory& m,
+                          moducom::dynamic::IMemory::handle_opaque_t* h)
+{
+    *h = m.allocate(count);
+    return m.lock(*h);
+}
+
+
+// experimental, seems to not work
+inline void operator delete(void* ptr, moducom::dynamic::IMemory& m,
+                            moducom::dynamic::IMemory::handle_opaque_t& h)
+{
+    m.free(h);
+}
+
+
+
+
+
