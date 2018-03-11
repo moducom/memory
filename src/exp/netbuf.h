@@ -142,6 +142,48 @@ class INetBuf
 {
 public:
     virtual bool next() = 0;
+
+    virtual moducom::pipeline::MemoryChunk data() const = 0;
+};
+
+
+class NetBufMemoryWriter : public INetBuf
+{
+    pipeline::MemoryChunk chunk;
+
+public:
+    NetBufMemoryWriter(const pipeline::MemoryChunk& chunk) : chunk(chunk) {}
+
+    virtual bool next() OVERRIDE { return false; }
+
+    virtual pipeline::MemoryChunk data() const OVERRIDE { return chunk; }
+};
+
+
+class NetBufHelper
+{
+    INetBuf& nb;
+    size_t pos;
+
+public:
+    NetBufHelper(INetBuf& nb) :
+            nb(nb),
+            pos(0)
+    {}
+
+    bool advance(size_t len)
+    {
+        len += pos;
+        // TODO: Do comparison on len/pos
+        return  true;
+    }
+
+    inline pipeline::MemoryChunk data() const
+    {
+        pipeline::MemoryChunk chunk = nb.data();
+        pipeline::MemoryChunk chunk2(chunk.data() + pos, chunk.length() - pos);
+        return chunk2;
+    }
 };
 
 }

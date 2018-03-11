@@ -27,4 +27,18 @@ TEST_CASE("Experimental tests", "[experimental]")
 
         REQUIRE(reduced_len == 118);
     }
+    SECTION("netbuf")
+    {
+        SECTION("layer5")
+        {
+            moducom::pipeline::layer2::MemoryChunk<128> chunk;
+            layer5::NetBufMemoryWriter nbmw(chunk);
+            layer5::INetBuf& nb = nbmw;
+            layer5::NetBufHelper nbh(nb);
+
+            moducom::pipeline::MemoryChunk c = nbh.data();
+
+            REQUIRE(c.length() == 128);
+        }
+    }
 }
