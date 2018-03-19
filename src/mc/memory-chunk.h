@@ -44,6 +44,22 @@ protected:
 
     ReadOnlyMemoryChunk() {}
 
+    ReadOnlyMemoryChunk(uint8_t* data, size_t length) :
+        m_data(data)
+    {
+        m_length = length;
+    }
+
+    // NOTE: Untested.  Protected because it will accept non-const data()
+    template <class TMemoryChunk>
+    ReadOnlyMemoryChunk(const TMemoryChunk& chunk) :
+        // FIX: We need to split out more ReadOnlyMemoryChunks, for now
+        // we have this nasty const-dropper
+        m_data(chunk.data())
+    {
+        this->m_length = chunk.length();
+    }
+
 public:
     ReadOnlyMemoryChunk(const uint8_t* data, size_t length) :
             // NOTE: semi faking this because regular MemoryChunk derives from
@@ -232,11 +248,12 @@ public:
         return ::memcmp(buffer, compare_against, length);
     }
 
+    // TODO: Consolidate with "carve_experimental"
     pipeline::MemoryChunk::readonly_t subset(size_t length) const
     {
         // TODO: Assert that length doesn't override boundaries
 
-        return pipeline::MemoryChunk::readonly_t((uint8_t*)data(), length);
+        return pipeline::MemoryChunk::readonly_t(data(), length);
     }
 
     inline uint8_t& operator[](size_t index)
