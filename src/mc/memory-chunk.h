@@ -129,8 +129,9 @@ public:
     uint8_t* data() const { return m_data; }
     void data(uint8_t* value) { m_data = value; }
 
+    // TODO: If we can verify C++11 compat, make this a &&
     template <class TMemoryChunk>
-    MemoryChunk(TMemoryChunk chunk) :
+    MemoryChunk(const TMemoryChunk& chunk) :
         // FIX: We need to split out more ReadOnlyMemoryChunks, for now
         // we have this nasty const-dropper
         base_t((uint8_t*)chunk.data(), chunk.length())

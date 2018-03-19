@@ -73,6 +73,12 @@ public:
             case Indexed2:
                 initialize_index2();
                 break;
+
+            default:
+#ifdef DEBUG
+                // TODO: Notify of an unexpected switch
+#endif
+                break;
         }
     }
 
