@@ -8,6 +8,9 @@
 // for size_t
 #include <stddef.h>
 
+// for strlen
+#include <string.h>
+
 namespace moducom { namespace pipeline {
 
 namespace experimental {
@@ -70,13 +73,12 @@ public:
         this->m_length = length;
     }
 
-    // EXPERIMENTAL - string version
-    // TODO: Get rid of this, I don't like it - I want something a little more
-    // typedef'd and not accidentally binary
-    ReadOnlyMemoryChunk(const char* str)
+    // creates new memorychunk via copy of direct string pointer,
+    // ascertains length with standard technique
+    static ReadOnlyMemoryChunk str_ptr(const char* str)
     {
-        m_data = (uint8_t*)str;
-        m_length = strlen(str);
+        size_t len = strlen(str);
+        return ReadOnlyMemoryChunk((uint8_t*)str, len);
     }
 
     const uint8_t* data() const { return m_data; }
@@ -162,6 +164,20 @@ public:
     inline void set(uint8_t c, size_t length) { ::memset(m_data, c, length); }
 
     inline void set(uint8_t c) { set(c, m_length); }
+
+    // wraps up a strncpy underneath
+    inline void strcpy(const char* copy_from)
+    {
+#ifdef __CPP11__
+        // WARN: Not tested at all
+        ::strncpy_s((char*)m_data, length(), copy_from, length());
+#else
+        // strncpy will fill right pad m_data with nulls
+        // not specifically desired behavior, so do not
+        // count on that continuing to be present
+        ::strncpy((char*)m_data, copy_from, length());
+#endif
+    }
 
     inline void memcpy(const uint8_t* copy_from, size_t length)
     {
