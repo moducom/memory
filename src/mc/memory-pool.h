@@ -223,7 +223,7 @@ public:
     }
 
 #ifdef __CPP11__
-    template <class TArgs... args>
+    template <class ... TArgs>
     T& allocate(TArgs...args1)
     {
         for(int i = 0; i < count; i++)

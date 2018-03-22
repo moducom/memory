@@ -8,6 +8,15 @@
 #define FEATURE_MCCOAP_ASSERT_ENABLE
 #endif
 
+#ifdef _MSC_VER
+#if _MSVC_LANG >= 201100
+#define __CPP11__
+#endif
+#if _MSVC_LANG >= 201400
+#define __CPP14__
+#endif
+#endif
+
 // TODO: find "most" standardized version of this
 #ifdef __CPP11__
 #define OVERRIDE override
