@@ -73,6 +73,19 @@ public:
         this->m_length = length;
     }
 
+
+    template <size_t N>
+    ReadOnlyMemoryChunk(const uint8_t (&data) [N])
+    {
+        // FIX: Would do static cast here but compiler (rightfully so) scolds us
+        // this indicates strongly to me we need a templatized MemoryChunkBase
+        // which splits then into the read only and non read only version - making
+        // all MemoryChunks inherit from ReadOnly is neat, but likely better served
+        // by move/conversion operators
+        m_data = (uint8_t*)data;
+        m_length = N;
+    }
+
     // creates new memorychunk via copy of direct string pointer,
     // ascertains length with standard technique
     static ReadOnlyMemoryChunk str_ptr(const char* str)
