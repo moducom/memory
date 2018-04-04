@@ -38,6 +38,32 @@ public:
 };
 
 
+// FIX: Not a great name, but good enough to be liberated from 'experimental'
+// category.  This class wraps up a memory chunk but adds a 'pos' tracking
+// capability.  It does not commit to *what* kind of processing is done
+template <class TMemoryChunk, typename _size_t = size_t>
+class ProcessedMemoryChunk
+{
+    TMemoryChunk _chunk;
+    _size_t pos;
+
+public:
+    ProcessedMemoryChunk(const TMemoryChunk& _chunk) :
+            _chunk(_chunk),
+            pos(0) {}
+
+    typedef TMemoryChunk chunk_t;
+
+    const chunk_t chunk() const { return _chunk; }
+
+    const uint8_t* data() { return _chunk.data() + pos; }
+
+    _size_t length() const { return _chunk.length() - pos; }
+
+    // TODO: Put in bounds check here
+    void advance(_size_t size) { pos += size; }
+};
+
 namespace experimental {
 
 class ReadOnlyMemoryChunk : public MemoryChunkBase<>

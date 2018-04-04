@@ -16,6 +16,6 @@ project(unit-tests)
 add_executable(${PROJECT_NAME} "main.cpp" "memory_pool.cpp" "memory_test.cpp"
     "string_test.cpp"
     "integrity.cpp"
-    experimental.cpp)
+    experimental.cpp memory-chunk.cpp)
 
 target_link_libraries(${PROJECT_NAME} moducom_memory_lib)
