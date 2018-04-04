@@ -70,6 +70,8 @@ public:
     _size_t length() const { return _chunk.length() - pos; }
 
     // TODO: Put in bounds check here
+    // potentially most visible and distinctive feature of ProcessedMemoryChunk is this
+    // call and its "side affect"
     void advance(_size_t size) { pos += size; }
 };
 
@@ -184,6 +186,12 @@ public:
 // TODO: Split out naming for MemoryChunk and something like MemoryBuffer
 // MemoryBuffer always includes data* but may or may not be responsible for actual buffer itself
 // MemoryChunk always includes buffer too - and perhaps (havent decided yet) may not necessarily include data*
+// IDEA: Call MemoryChunk 'MemoryDescriptor' to decouple expectation that inline memory is present
+//       we can then refer to any MemoryDescriptor-like thing which also has inline memory as a MemoryChunk
+//       this will demand a lot of renaming, but seems the clearest.  In other words:
+//       MemoryDescriptor: promises data pointer and length
+//       MemoryChunk: promises inline data itself, and its implicit length -
+//          and adheres the MemoryDescriptor "concept" / signature
 class MemoryChunk : public experimental::ReadOnlyMemoryChunk
 {
     typedef experimental::ReadOnlyMemoryChunk base_t;

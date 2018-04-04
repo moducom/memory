@@ -30,18 +30,6 @@ class NetBufMemoryWriterTemplate : public NetBufMemoryTemplate<TMemoryChunk>
     typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
 
 public:
-    // FIX: Phase this out, underlying data() returns uint8*, underlying chunk()
-    // returns native untouched chunk, and this class itself represents a sort of
-    // MemoryChunk all its own (by convention)
-
-    // get data buffer currently available
-    moducom::pipeline::MemoryChunk data() const
-    {
-        // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
-        // nasty typecast
-        return moducom::pipeline::MemoryChunk(
-                (uint8_t*)base_t::chunk().data(base_t::pos), base_t::chunk().length() - base_t::pos);
-    }
 };
 
 template <class TMemoryChunk>
@@ -50,14 +38,6 @@ class NetBufMemoryReaderTemplate : public NetBufMemoryTemplate<TMemoryChunk>
     typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
 
 public:
-    // get data buffer currently available
-    moducom::pipeline::MemoryChunk::readonly_t data() const
-    {
-        // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
-        // nasty typecast
-        return moducom::pipeline::MemoryChunk::readonly_t(
-                (uint8_t*)base_t::chunk().data(base_t::pos), base_t::chunk().length() - base_t::pos);
-    }
 };
 
 
@@ -72,6 +52,7 @@ class NetBufMemoryWriter :
 
 
 // FIX: crappy name and only employed if we ditch inbuilt advance
+// NOTE: Not in use, we're heavily favoring inbuilt advance
 template <class TNetBufMemoryTemplate>
 class NetBufHelper
 {
@@ -92,7 +73,7 @@ public:
         // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
         // nasty typecast
         return moducom::pipeline::MemoryChunk(
-                chunk.data() + pos, nb.length() - pos);
+                nb.data() + pos, nb.length() - pos);
     }
 
     bool advance(size_t len)
@@ -135,7 +116,7 @@ class INetBuf
 public:
     virtual bool next() = 0;
 
-    virtual moducom::pipeline::MemoryChunk data() const = 0;
+    //virtual moducom::pipeline::MemoryChunk data() const = 0;
 };
 
 
@@ -148,10 +129,11 @@ public:
 
     virtual bool next() OVERRIDE { return false; }
 
-    virtual pipeline::MemoryChunk data() const OVERRIDE { return chunk; }
+    //virtual pipeline::MemoryChunk data() const OVERRIDE { return chunk; }
 };
 
 
+/** Phased out, advancing is done within netbuf itself
 class NetBufHelper
 {
     INetBuf& nb;
@@ -177,6 +159,7 @@ public:
         return chunk2;
     }
 };
+ */
 
 }
 
