@@ -48,6 +48,8 @@ protected:
     const TMemoryChunk _chunk;
     _size_t pos;
 
+    ProcessedMemoryChunkBase() : _chunk(), pos(0) {}
+
 public:
     ProcessedMemoryChunkBase(const TMemoryChunk& _chunk) :
             _chunk(_chunk),

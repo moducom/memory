@@ -8,32 +8,22 @@ namespace moducom { namespace io { namespace experimental {
 
 
 template <class TMemoryChunk, typename TSize = size_t>
-class NetBufMemoryTemplate
+class NetBufMemoryTemplate : public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize>
 {
 public:
     typedef TSize size_t;
     typedef TMemoryChunk chunk_t;
-
-protected:
-
-    TMemoryChunk chunk;
-    size_t pos;
+    typedef moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize> base_t;
 
 public:
-    NetBufMemoryTemplate() : pos(0) {}
-
-    // managing pos within netbuf has advantage that we can pass netbuf around
-    // easily and have this come along for the ride.  Disadvantage is that that
-    // might be better suited by a helper struct which wraps netbuf, so that
-    // netbuf itself is more lightweigt
-    void advance(size_t advance_bytes) { pos += advance_bytes; }
+    NetBufMemoryTemplate() {}
 
     // Move forward to next net buf once we've exhausted this one
     // (noop for netbuf memory writer, if you're out of space, you're
     // screwed)
     bool next() { return false; }
 
-    size_t length() { return chunk.length(); }
+    size_t length() const { return base_t::chunk().length(); }
 };
 
 template <class TMemoryChunk>
@@ -48,7 +38,7 @@ public:
         // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
         // nasty typecast
         return moducom::pipeline::MemoryChunk(
-                (uint8_t*)base_t::chunk.data(base_t::pos), base_t::chunk.length() - base_t::pos);
+                (uint8_t*)base_t::chunk().data(base_t::pos), base_t::chunk().length() - base_t::pos);
     }
 };
 
