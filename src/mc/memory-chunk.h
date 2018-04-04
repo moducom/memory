@@ -120,7 +120,7 @@ public:
         return ReadOnlyMemoryChunk((uint8_t*)str, len);
     }
 
-    const uint8_t* data() const { return m_data; }
+    const uint8_t* data(size_t pos = 0) const { return m_data + pos; }
 
     inline uint8_t operator[](size_t index) const
     {
@@ -180,11 +180,15 @@ public:
     // interim type
     typedef experimental::ReadOnlyMemoryChunk readonly_t;
 
+// Not recommended, but might be necessary under some conditions.  An
+// in-place new probably preferred
+#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
     void length(size_t l) { this->m_length = l; }
-    size_t length() const { return base_t::length(); }
-
-    uint8_t* data() const { return m_data; }
     void data(uint8_t* value) { m_data = value; }
+#endif
+
+    // NON const version, necessary here to overload with const from ReadOnlyMemoryChunk
+    uint8_t* data(size_t pos = 0) const { return m_data + pos; }
 
     // TODO: If we can verify C++11 compat, make this a &&
     template <class TMemoryChunk>
@@ -198,7 +202,10 @@ public:
     {
     }
 
+    // this constructor only viable with rewritable feature
+#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
     MemoryChunk() {}
+#endif
 
     inline void set(uint8_t c, size_t length) { ::memset(m_data, c, length); }
 
@@ -443,7 +450,9 @@ public:
 
     Status* status;
 
+#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
     PipelineMessage() : status(NULLPTR) {}
+#endif
 
     PipelineMessage(uint8_t* data, size_t length) :
         MemoryChunk(data, length),
