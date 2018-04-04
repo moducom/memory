@@ -22,8 +22,6 @@ public:
     // (noop for netbuf memory writer, if you're out of space, you're
     // screwed)
     bool next() { return false; }
-
-    size_t length() const { return base_t::chunk().length(); }
 };
 
 template <class TMemoryChunk>
@@ -32,6 +30,10 @@ class NetBufMemoryWriterTemplate : public NetBufMemoryTemplate<TMemoryChunk>
     typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
 
 public:
+    // FIX: Phase this out, underlying data() returns uint8*, underlying chunk()
+    // returns native untouched chunk, and this class itself represents a sort of
+    // MemoryChunk all its own (by convention)
+
     // get data buffer currently available
     moducom::pipeline::MemoryChunk data() const
     {
@@ -54,7 +56,7 @@ public:
         // FIX: make a layer1::ReadOnlyMemoryChunk to avoid this
         // nasty typecast
         return moducom::pipeline::MemoryChunk::readonly_t(
-                (uint8_t*)base_t::chunk.data(base_t::pos), base_t::chunk.length() - base_t::pos);
+                (uint8_t*)base_t::chunk().data(base_t::pos), base_t::chunk().length() - base_t::pos);
     }
 };
 
