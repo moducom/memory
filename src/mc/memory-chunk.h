@@ -42,14 +42,21 @@ public:
 // category.  This class wraps up a memory chunk but adds a 'pos' tracking
 // capability.  It does not commit to *what* kind of processing is done
 template <class TMemoryChunk, typename _size_t = size_t>
-class ProcessedMemoryChunk
+class ProcessedMemoryChunkBase
 {
-    TMemoryChunk _chunk;
+protected:
+    const TMemoryChunk _chunk;
     _size_t pos;
 
 public:
-    ProcessedMemoryChunk(const TMemoryChunk& _chunk) :
+    ProcessedMemoryChunkBase(const TMemoryChunk& _chunk) :
             _chunk(_chunk),
+            pos(0) {}
+
+    // FIX: semi-workaround for const/non const variance of chunk_t
+    template <typename TData>
+    ProcessedMemoryChunkBase(TData data, _size_t length) :
+            _chunk(data, length),
             pos(0) {}
 
     typedef TMemoryChunk chunk_t;
@@ -71,7 +78,10 @@ class ReadOnlyMemoryChunk : public MemoryChunkBase<>
 protected:
     uint8_t* m_data;
 
+
+#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
     ReadOnlyMemoryChunk() {}
+#endif
 
     ReadOnlyMemoryChunk(uint8_t* data, size_t length) :
         m_data(data)
@@ -256,6 +266,7 @@ public:
         return MemoryChunk(m_data + pos, m_length - pos);
     }
 
+#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
     // Would prefer memorychunk itself to be more constant, perhaps we can
     // have a "ProcessedMemoryChunk" which includes a pos in it... ? or maybe
     // instead a ConstMemoryChunk just for those occasions..
@@ -264,6 +275,20 @@ public:
         ASSERT_ERROR(true, pos < length(), "pos >= length");
         m_data += pos; m_length -= pos;
     }
+#endif
+};
+
+
+// General purpose ProcessedMemoryChunk, targets regular (non layered)
+// MemoryChunk
+class ProcessedMemoryChunk : public ProcessedMemoryChunkBase<MemoryChunk>
+{
+public:
+    ProcessedMemoryChunk(const MemoryChunk& chunk) :
+            ProcessedMemoryChunkBase(chunk) {}
+
+    ProcessedMemoryChunk(uint8_t* data, size_t length) :
+            ProcessedMemoryChunkBase(data, length) {}
 };
 
 namespace layer1 {
