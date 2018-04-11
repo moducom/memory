@@ -114,12 +114,19 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         int* val = new (os) int;
 
-        os.alloc(10);
+        void* buffer = os.alloc(10);
 
-        REQUIRE(os.length() == 512 - sizeof(int) - 10 - sizeof(ObjStack::Descriptor) * 2);
+        REQUIRE(os.length() == 512 - sizeof(int) - 10
+#ifdef FEATURE_MC_MEM_OBJSTACK_CHECK
+                               - sizeof(ObjStack::Descriptor) * 2
+#endif
+                                );
 
+#ifdef FEATURE_MC_MEM_OBJSTACK_GNUSTYLE
+        os.free(buffer);
+#else
         os.free(10);
-
+#endif
         os.del(val);
 
         REQUIRE(os.length() == 512);
