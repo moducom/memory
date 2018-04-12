@@ -46,7 +46,7 @@ namespace layer2 {
 
 template <size_t buffer_length>
 class NetBufMemoryWriter :
-        public NetBufMemoryWriterTemplate<moducom::pipeline::layer1::MemoryChunk<buffer_length>>
+        public NetBufMemoryWriterTemplate<moducom::pipeline::layer1::MemoryChunk<buffer_length > >
 {
 };
 
@@ -93,8 +93,9 @@ namespace layer3 {
 
 template <size_t buffer_length>
 class NetBufMemoryWriter :
-        public NetBufMemoryWriterTemplate<moducom::pipeline::layer2::MemoryChunk<buffer_length>>
+    public NetBufMemoryWriterTemplate<pipeline::MemoryChunk>
 {
+    size_t pos;
 };
 
 class NetBufMemoryReader :
