@@ -15,6 +15,12 @@
 #if _MSVC_LANG >= 201400
 #define __CPP14__
 #endif
+#else
+
+#if __cplusplus >= 201103L
+#define __CPP11__
+#endif
+
 #endif
 
 // TODO: find "most" standardized version of this
@@ -22,6 +28,14 @@
 #define OVERRIDE override
 #define CONSTEXPR constexpr
 #define NULLPTR nullptr
+
+#define FEATURE_CPP_DECLTYPE
+#define FEATURE_CPP_DECLVAL
+
+#ifndef __APPLE__
+// Can't be sure, but seems like apple version of things didn't include strncpy_s
+#define FEATURE_CPP_STRNCPY_S
+#endif
 #else
 #include <stddef.h> // for NULL
 

@@ -11,6 +11,8 @@
 // for strlen
 #include <string.h>
 
+#include "platform.h"
+
 namespace moducom { namespace pipeline {
 
 namespace experimental {
@@ -21,20 +23,25 @@ struct memory_chunk_traits
     // true = length field represents entire size of buffer, even if only a portion of it is used
     // false = length field represents portion of buffer
     static bool is_length_absolute() { return true; }
+
+    typedef size_t size_type;
+    typedef uint8_t* pointer;
 };
 
 }
 
-template <typename custom_size_t = size_t, class TTraits = experimental::memory_chunk_traits>
+template <class TTraits = experimental::memory_chunk_traits>
 class MemoryChunkBase
 {
+public:
+    typedef typename TTraits::size_type size_type;
+    typedef TTraits traits_t;
+
 protected:
-    custom_size_t m_length;
+    size_type m_length;
 
 public:
-    size_t length() const { return m_length; }
-
-    typedef TTraits traits_t;
+    size_type length() const { return m_length; }
 };
 
 
@@ -46,6 +53,10 @@ class ProcessedMemoryChunkBase
 {
 protected:
     const TMemoryChunk _chunk;
+#if defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL)
+    typedef decltype(std::declval<TMemoryChunk>().length()) size_type;
+#else
+#endif
     _size_t pos;
 
     ProcessedMemoryChunkBase() : _chunk(), pos(0) {}
@@ -62,10 +73,11 @@ public:
             pos(0) {}
 
     typedef TMemoryChunk chunk_t;
+    //typedef typename chunk_t::size_type size_type;
 
-    const chunk_t chunk() const { return _chunk; }
+    const chunk_t& chunk() const { return _chunk; }
 
-    const uint8_t* data() { return _chunk.data() + pos; }
+    const uint8_t* data() { return _chunk.data(pos); }
 
     _size_t length() const { return _chunk.length() - pos; }
 
@@ -234,7 +246,7 @@ public:
     // wraps up a strncpy underneath
     inline void strcpy(const char* copy_from)
     {
-#ifdef __CPP11__
+#ifdef FEATURE_CPP_STRNCPY_S
         // WARN: Not tested at all
         ::strncpy_s((char*)m_data, length(), copy_from, length());
 #else
@@ -314,6 +326,8 @@ protected:
 
 
 public:
+    typedef size_t size_type;
+
     size_t length() const { return buffer_length; }
     // TODO: Split this out into the readonly variety
     const uint8_t* data(size_t offset = 0) const { return buffer + offset; }
@@ -363,25 +377,27 @@ public:
 
 namespace layer2 {
 // Variant of layer2.  buffer pointer NOT used, but size field IS used
-template<size_t buffer_length, typename custom_size_t = size_t>
+template<size_t buffer_length>
 class MemoryChunk :
-        public MemoryChunkBase<custom_size_t>,
+        public MemoryChunkBase<>,
         public layer1::MemoryChunk<buffer_length>
 {
     typedef layer1::MemoryChunk<buffer_length> base_t;
+    typedef MemoryChunkBase<> base2_t;
+    typedef typename base2_t::size_type size_type;
 
 public:
     // defaults to exact size of fixed buffer
-    MemoryChunk(custom_size_t length = buffer_length) { this->length(length); }
+    MemoryChunk(size_type length = buffer_length) { this->length(length); }
 
-    inline custom_size_t length() const { return MemoryChunkBase<custom_size_t>::m_length; }
-    inline void length(custom_size_t l) { MemoryChunkBase<custom_size_t>::m_length = l; }
+    inline size_type length() const { return base2_t::m_length; }
+    inline void length(size_type l) { base2_t:m_length = l; }
 
     inline void set(uint8_t ch) { base_t::set(ch); }
 
     // like memcpy but also sets this->length()
     template <typename T>
-    inline void set(const T* copy_from, custom_size_t length)
+    inline void set(const T* copy_from, size_type length)
     {
         this->memcpy(reinterpret_cast<const uint8_t*>(copy_from), length);
         this->length(length);

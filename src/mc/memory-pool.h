@@ -226,7 +226,7 @@ public:
     template <class ... TArgs>
     T& allocate(TArgs...args1)
     {
-        for(int i = 0; i < count; i++)
+        for(int i = 0; i < max_count; i++)
         {
             T& candidate = items[i];
 

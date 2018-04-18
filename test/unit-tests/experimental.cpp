@@ -48,4 +48,14 @@ TEST_CASE("Experimental tests", "[experimental]")
             REQUIRE(c.length() == 128); */
         }
     }
+    SECTION("netbuf chunk access")
+    {
+        typedef moducom::io::experimental::layer2::NetBufMemoryWriter<256> netbuf_t;
+        netbuf_t netbuf;
+        auto& chunk = netbuf.chunk();
+        moducom::pipeline::MemoryChunk chunk2 = netbuf.chunk();
+
+        REQUIRE(chunk.data() == netbuf.data());
+        REQUIRE(chunk2.data() == netbuf.data());
+    }
 }
