@@ -5,10 +5,11 @@
 // this is a *traditional* memory pool, i.e. array of fixed size chunks vs memory_pool.h which is our
 // advanced virtual memory engine
 
+#pragma once
+
 #include <stdlib.h>
 #include "array-helper.h"
-
-#pragma once
+#include <estd/forward_list.h>
 
 namespace moducom { namespace dynamic {
 
@@ -291,6 +292,14 @@ public:
     operator oobp_t() const { return out_of_band(); }
 };
 
+
+
+template <class T, size_t slots>
+class LinkedListPool
+{
+public:
+
+};
 
 
 }}

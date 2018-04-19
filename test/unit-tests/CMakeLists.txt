@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 add_definitions(-Werror=reorder)
 
 set(MC_MEM_DIR ../../src)
+set(ESTDLIB_DIR ../../ext/estdlib/src)
+
+include_directories(${ESTDLIB_DIR})
 
 INCLUDE_DIRECTORIES(../../ext/Catch/single_include)
 include_directories(${MC_MEM_DIR})

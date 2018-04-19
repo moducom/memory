@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 3.2)
 
 project(moducom_memory)
 
+set(ESTDLIB_DIR ../ext/estdlib/src)
+
+include_directories(${ESTDLIB_DIR})
+
+add_subdirectory(${ESTDLIB_DIR} estdlib)
+
 set(SOURCE_FILES
+        platform.h
         mc/array-helper.h
         mc/linkedlist.cpp
         mc/linkedlist.h

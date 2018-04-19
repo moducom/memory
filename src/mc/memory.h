@@ -95,15 +95,15 @@ public:
     /// \param size size of allocation
     /// \param size_copy size of copy must be less than size
     /// \return
-    handle_t copy(handle_t handle, size_t size, size_t size_copy = 0);
+    handle_t copy(handle_t handle, size_t size, size_t size_copy = 0) OVERRIDE;
 
-    void* lock(handle_t handle) { return (void*)handle; }
+    void* lock(handle_t handle) OVERRIDE { return (void*)handle; }
 
     template <class T>
     T* lock(handle_t handle)
     { return static_cast<T*>(lock(handle)); }
 
-    void unlock(handle_t handle) {}
+    void unlock(handle_t handle) OVERRIDE {}
     //void unlock(void* pointer);
 
     /// Compact memory around this one handle.  Deterministic runtime
