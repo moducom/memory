@@ -7,10 +7,11 @@
 #ifndef MC_COAP_TEST_LINKEDLIST_H
 #define MC_COAP_TEST_LINKEDLIST_H
 
-#include "../platform.h"
+#include "mem/platform.h"
 
 namespace moducom { namespace experimental {
 
+// NOTE: Don't use this, use estd version instead
 template <class TNode>
 class forward_list;
 

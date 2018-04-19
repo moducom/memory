@@ -14,7 +14,7 @@
 // for uint8_t and friends
 #include <stdint.h>
 
-#include "platform.h"
+#include "mem/platform.h"
 
 namespace moducom { namespace pipeline {
 
