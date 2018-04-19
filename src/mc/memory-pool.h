@@ -296,20 +296,102 @@ public:
 
 namespace mem {
 
+namespace experimental {
+
+// this is where we have a pool of T, so in this case T
+// and node are a bit different, but still no allocation goes on
+// (operates very similar to forward_node)
+template <class T, size_t slots, typename TSize = size_t>
+class intrusive_node_pool_allocator
+{
+public:
+    typedef TSize size_type;
+    typedef uint8_t handle_type;
+    typedef T value_type;
+
+    class node_type
+    {
+        handle_type m_next;
+        value_type m_value;
+
+    public:
+        void next(const handle_type& n) { m_next = n; }
+        handle_type next() const { return m_next; }
+
+        value_type& value() { return value; }
+
+        const value_type& value() const { return value; }
+    };
+
+    typedef value_type& nv_ref_t;
+    typedef node_type* node_pointer;
+
+private:
+    node_type pool[slots];
+
+public:
+    // FIX: chicken and egg issue, this call expects to find an unallocated
+    // item in the pool, but the whole point of this allocator is to be locker
+    // which translates slot# into pointers, so that an external party can actually
+    // search through the linked list to find a slot.  Kinda complex, I know
+    template <typename TValue>
+    node_pointer alloc(TValue& value) { return &value; }
+
+    void dealloc(node_pointer node) {}
+
+    node_pointer lock(handle_type h) { return &pool[h]; }
+    void unlock(handle_type h) {}
+
+    intrusive_node_pool_allocator(void* = NULLPTR) {}
+};
+
+
+class intrusive_node_pool_traits
+{
+public:
+    typedef uint8_t node_handle;
+
+    typedef estd::nothing_allocator allocator_t;
+
+    static CONSTEXPR node_handle null_node() { return 0xFF; }
+
+#ifdef FEATURE_CPP_ALIASTEMPLATE
+    template <class TValue>
+    using test_node_allocator_t = intrusive_node_pool_allocator<TValue, 10>;
+#endif
+};
+
+};
+
 template <class T, size_t slots>
 class LinkedListPool
 {
 public:
+    // +++ experimental uint8 handle variety
+    // TODO: Utilize a variant of forward_node which uses a uint8_t handle
+    // since they all will be living in items slots
+    //typedef experimental::non_allocating_node_lock_pool_resolver<T, slots> node_allocator_t;
+    typedef experimental::intrusive_node_pool_traits node_traits_t;
+    typedef typename node_traits_t::test_node_allocator_t<T> node_allocator_t;
+    typedef typename node_allocator_t::node_type node_type;
+    typedef estd::forward_list<node_type, node_traits_t> list2_t;
+    // ---
+
     typedef estd::experimental::forward_node<T> item_t;
     typedef estd::forward_list<item_t> list_t;
 
 private:
     item_t items[slots];
 
+    node_allocator_t node_allocator;
+
     list_t m_allocated;
     list_t m_free;
 
+    //list2_t m_allocated2;
+
 public:
+    const list_t& allocated() const { return m_allocated; }
 
     LinkedListPool()
     {
@@ -340,7 +422,7 @@ public:
 
     void deallocate(item_t* item)
     {
-        m_allocated.remove(*item, true, true);
+        m_allocated.remove(*item, true);
         m_free.push_front(*item);
     }
 };

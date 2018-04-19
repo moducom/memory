@@ -133,10 +133,35 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     }
     SECTION("LinkedListPool")
     {
-        moducom::mem::LinkedListPool<int, 4> pool;
+        typedef moducom::mem::LinkedListPool<int, 4> llpool_t;
+        typedef llpool_t::item_t item_t;
+        llpool_t pool;
 
-        auto item = pool.allocate();
+        item_t* item = pool.allocate();
 
-        //pool.deallocate(item);
+        item->value() = 5;
+
+        auto allocated = pool.allocated();
+        auto iterator = allocated.begin();
+
+        REQUIRE(iterator.lock().value() == 5);
+        iterator++;
+        // FIX: But really, we need a proper way to signify end of forward_list
+        REQUIRE((*iterator).value() == 0);
+
+        pool.deallocate(item);
+    }
+    SECTION("Experimental pool slot management")
+    {
+        typedef int value_type;
+        typedef moducom::mem::experimental::intrusive_node_pool_traits node_traits_t;
+        typedef typename node_traits_t::test_node_allocator_t<value_type> node_allocator_t;
+        typedef typename node_allocator_t::node_type node_type;
+        typedef estd::forward_list<value_type, node_traits_t> list2_t;
+
+        list2_t list;
+        value_type value = 5;
+
+        //list.push_front(value);
     }
 }
