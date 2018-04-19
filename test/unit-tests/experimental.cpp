@@ -15,7 +15,7 @@ TEST_CASE("Experimental tests", "[experimental]")
 
     SECTION("A")
     {
-        layer2::NetBufMemoryWriter<buflen> writer;
+        layer2::NetBufMemory<buflen> writer;
 
         REQUIRE(writer.chunk().length() == buflen);
         REQUIRE(writer.length_unprocessed() == buflen);
@@ -50,7 +50,7 @@ TEST_CASE("Experimental tests", "[experimental]")
     }
     SECTION("netbuf chunk access")
     {
-        typedef moducom::io::experimental::layer2::NetBufMemoryWriter<256> netbuf_t;
+        typedef moducom::io::experimental::layer2::NetBufMemory<256> netbuf_t;
         netbuf_t netbuf;
         auto& chunk = netbuf.chunk();
         moducom::pipeline::MemoryChunk chunk2 = netbuf.chunk();

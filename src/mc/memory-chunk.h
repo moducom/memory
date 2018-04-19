@@ -86,7 +86,9 @@ public:
 
     // this retrieves processed data
     // to access processed data, go through chunk()
-    const uint8_t* unprocessed() { return _chunk.data(pos); }
+    uint8_t* unprocessed() { return _chunk.data(pos); }
+
+    const uint8_t* processed() { return _chunk.data(); }
 
     size_type length_unprocessed() const { return _chunk.length() - pos; }
 

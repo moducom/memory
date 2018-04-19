@@ -7,13 +7,29 @@
 namespace moducom { namespace io { namespace experimental {
 
 
-template <class TMemoryChunk, typename TSize = size_t>
-class NetBufMemoryTemplate : public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize>
+// netbufs are inherently read and write, so wrap them up
+// with reader and writer to create compiler-friendly divisions
+template <class TMemoryChunk
+//#if !(defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
+        , typename TSize = size_t
+//#endif
+        >
+class NetBufMemoryTemplate :
+#if (defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
+        public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk>
+#else
+        public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize>
+#endif
 {
 public:
-    typedef TSize size_t;
     typedef TMemoryChunk chunk_t;
+#if (defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
+    typedef moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk> base_t;
+    typedef decltype(std::declval<TMemoryChunk>().length()) size_type;
+#else
+    typedef TSize size_t;
     typedef moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize> base_t;
+#endif
 
 public:
     NetBufMemoryTemplate() {}
@@ -27,29 +43,14 @@ public:
     void first() {}
 };
 
-template <class TMemoryChunk>
-class NetBufMemoryWriterTemplate : public NetBufMemoryTemplate<TMemoryChunk>
-{
-    typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
-
-public:
-};
-
-template <class TMemoryChunk>
-class NetBufMemoryReaderTemplate : public NetBufMemoryTemplate<TMemoryChunk>
-{
-    typedef NetBufMemoryTemplate<TMemoryChunk> base_t;
-
-public:
-};
 
 
 namespace layer2 {
 
 
 template <size_t buffer_length>
-class NetBufMemoryWriter :
-        public NetBufMemoryWriterTemplate<moducom::pipeline::layer1::MemoryChunk<buffer_length > >
+class NetBufMemory :
+        public NetBufMemoryTemplate<moducom::pipeline::layer1::MemoryChunk<buffer_length > >
 {
 };
 
@@ -96,13 +97,13 @@ namespace layer3 {
 
 template <size_t buffer_length>
 class NetBufMemoryWriter :
-    public NetBufMemoryWriterTemplate<pipeline::MemoryChunk>
+    public NetBufMemoryTemplate<pipeline::MemoryChunk>
 {
     size_t pos;
 };
 
 class NetBufMemoryReader :
-    public NetBufMemoryReaderTemplate<pipeline::MemoryChunk>
+    public NetBufMemoryTemplate<pipeline::MemoryChunk>
 {
     pipeline::MemoryChunk chunk;
     size_t pos;
@@ -166,5 +167,102 @@ public:
  */
 
 }
+
+
+template <class TNetBuf>
+class NetBufReader
+{
+protected:
+    typedef TNetBuf netbuf_t;
+
+    // outgoing network buffer
+    // TODO: for netbuf, modify APIs slightly to be more C++ std lib like, specifically
+    // a size/capacity/max_size kind of thing
+    netbuf_t m_netbuf;
+};
+
+
+// a thinner wrapper around netbuf, mainly adding convenience methods for
+// writes
+template <class TNetBuf>
+class NetBufWriter
+{
+protected:
+    typedef TNetBuf netbuf_t;
+
+    // outgoing network buffer
+    // TODO: for netbuf, modify APIs slightly to be more C++ std lib like, specifically
+    // a size/capacity/max_size kind of thing
+    netbuf_t m_netbuf;
+
+public:
+    template <class TNetBufInitParam>
+    NetBufWriter(TNetBufInitParam& netbufinitparam) :
+            m_netbuf(netbufinitparam)
+    {}
+
+    NetBufWriter() {}
+
+    // acquire direct access to underlying netbuf, useful for bulk operations like
+    // payload writes
+    const netbuf_t& netbuf() const
+    {
+        return this->m_netbuf;
+    }
+
+    netbuf_t& netbuf()
+    {
+        return this->m_netbuf;
+    }
+
+#if defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL)
+    typedef decltype(std::declval<TNetBuf>().length_unprocessed()) size_type;
+#else
+    // this represents TNetBuf size_type.  Can't easily pull this out of netbuf directly
+    // due to the possibility TNetBuf might be a reference (will instead have to do fancy
+    // C++11 decltype/declval things to deduce it)
+    typedef int size_type;
+#endif
+
+    bool advance(size_type amount)
+    {
+        // TODO: add true/false on advance to underlying netbuf itself to aid in runtime
+        // detection of boundary failure
+        netbuf().advance(amount);
+        return true;
+    }
+
+    // returns available unprocessed bytes
+    size_type size() const { return netbuf().length_unprocessed(); }
+
+
+    size_type write(const void* d, int len)
+    {
+        if(len > size()) len = size();
+
+        // FIX: ugly, netbuf itself really needs to drop const, at least when
+        // it's a writeable netbuf
+        memcpy(netbuf().unprocessed(), d, len);
+        bool advance_success = advance(len);
+
+        ASSERT_ERROR(true, advance_success, "Problem advancing through netbuf");
+
+        // TODO: decide if we want to issue a next() call here or externally
+        return len;
+    }
+
+    template <class TString>
+    size_type write(TString s)
+    {
+        int copied = s.copy((char*)netbuf().unprocessed(), this->size());
+
+        this->advance(copied);
+
+        ASSERT_ERROR(false, copied > s.length(), "Somehow copied more than was available!");
+
+        return copied;
+    }
+
+};
 
 }}}
