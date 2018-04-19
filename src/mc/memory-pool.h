@@ -340,7 +340,7 @@ public:
 
     void deallocate(item_t* item)
     {
-        //m_allocated.remove(*item);
+        m_allocated.remove(*item, true, true);
         m_free.push_front(*item);
     }
 };

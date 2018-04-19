@@ -134,5 +134,9 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     SECTION("LinkedListPool")
     {
         moducom::mem::LinkedListPool<int, 4> pool;
+
+        auto item = pool.allocate();
+
+        //pool.deallocate(item);
     }
 }
