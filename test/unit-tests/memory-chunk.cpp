@@ -14,7 +14,7 @@ TEST_CASE("Memory chunk tests", "[memory-chunk]")
 
         pmc.advance(10);
 
-        REQUIRE(chunk.data(10) == pmc.data());
+        REQUIRE(chunk.data(10) == pmc.unprocessed());
     }
     SECTION("ProcessedMemoryChunkBase layer 3")
     {
@@ -25,6 +25,6 @@ TEST_CASE("Memory chunk tests", "[memory-chunk]")
 
         // Following doesn't compile yet due to unexpected setter
         // in MemoryChunk
-        REQUIRE(chunk.data(10) == pmc.data());
+        REQUIRE(chunk.data(10) == pmc.unprocessed());
     }
 }

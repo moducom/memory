@@ -82,9 +82,17 @@ public:
 
     const chunk_t& chunk() const { return _chunk; }
 
-    const uint8_t* data() { return _chunk.data(pos); }
+    // this retrieves processed data
+    // to access processed data, go through chunk()
+    const uint8_t* unprocessed() { return _chunk.data(pos); }
 
-    size_type length() const { return _chunk.length() - pos; }
+    size_type length_unprocessed() const { return _chunk.length() - pos; }
+
+    size_type length_processed() const { return pos; }
+
+    // ala std::string and std::vector, this indicates how much data
+    // total can be stuffed in to this memory chunk
+    size_type capacity() const { return _chunk.length(); }
 
     // TODO: Put in bounds check here
     // potentially most visible and distinctive feature of ProcessedMemoryChunk is this
@@ -98,6 +106,7 @@ public:
 
 namespace experimental {
 
+// basically layer3 variety here
 class ReadOnlyMemoryChunk : public MemoryChunkBase<>
 {
 protected:
@@ -326,10 +335,18 @@ namespace layer1 {
 
 
 template <size_t buffer_length>
-class MemoryChunk
+class ReadOnlyMemoryChunk
+{
+protected:
+
+
+};
+
+template <size_t buffer_length>
+class MemoryChunk : public ReadOnlyMemoryChunk<buffer_length>
 {
     uint8_t buffer[buffer_length];
-
+    
 protected:
     uint8_t* writable_data_experimental(size_t offset = 0) { return buffer + offset; }
 

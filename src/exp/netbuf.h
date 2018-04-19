@@ -22,6 +22,9 @@ public:
     // (noop for netbuf memory writer, if you're out of space, you're
     // screwed)
     bool next() { return false; }
+
+    // Placeholder for moving back to first buffer.  For this simple NetBufMemory, it's a noop
+    void first() {}
 };
 
 template <class TMemoryChunk>

@@ -18,12 +18,12 @@ TEST_CASE("Experimental tests", "[experimental]")
         layer2::NetBufMemoryWriter<buflen> writer;
 
         REQUIRE(writer.chunk().length() == buflen);
-        REQUIRE(writer.length() == buflen);
+        REQUIRE(writer.length_unprocessed() == buflen);
 
         writer.advance(10);
 
         REQUIRE(writer.chunk().length() == buflen);
-        REQUIRE(writer.length() == buflen - 10);
+        REQUIRE(writer.length_unprocessed() == buflen - 10);
 
         /*
         layer2::NetBufHelper<layer2::NetBufMemoryWriter<128>> nbh(writer);
@@ -55,7 +55,7 @@ TEST_CASE("Experimental tests", "[experimental]")
         auto& chunk = netbuf.chunk();
         moducom::pipeline::MemoryChunk chunk2 = netbuf.chunk();
 
-        REQUIRE(chunk.data() == netbuf.data());
-        REQUIRE(chunk2.data() == netbuf.data());
+        REQUIRE(chunk.data() == netbuf.unprocessed());
+        REQUIRE(chunk2.data() == netbuf.unprocessed());
     }
 }
