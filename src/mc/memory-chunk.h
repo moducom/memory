@@ -11,6 +11,9 @@
 // for strlen
 #include <string.h>
 
+// for uint8_t and friends
+#include <stdint.h>
+
 #include "platform.h"
 
 namespace moducom { namespace pipeline {
@@ -30,11 +33,13 @@ struct memory_chunk_traits
 
 }
 
-template <class TTraits = experimental::memory_chunk_traits>
+template <class TSize = size_t, class TTraits = experimental::memory_chunk_traits>
 class MemoryChunkBase
 {
 public:
-    typedef typename TTraits::size_type size_type;
+    // Not yet used
+    //typedef typename TTraits::size_type size_type;
+    typedef TSize size_type;
     typedef TTraits traits_t;
 
 protected:
@@ -380,6 +385,8 @@ public:
 
     size_type length() const { return buffer_length; }
 
+    const uint8_t* data(size_type offset = 0) const { return base_t::buffer + offset; }
+
     uint8_t* data(size_type offset = 0) { return base_t::buffer + offset; }
 
     // copies in length bytes from specified incoming buffer
@@ -414,7 +421,7 @@ public:
 
 namespace layer2 {
 // Variant of layer2.  buffer pointer NOT used, but size field IS used
-template<size_t buffer_length>
+template<size_t buffer_length, class TSize = size_t>
 class MemoryChunk :
         public MemoryChunkBase<>,
         public layer1::MemoryChunk<buffer_length>
