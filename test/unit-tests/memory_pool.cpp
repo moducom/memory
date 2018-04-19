@@ -146,8 +146,7 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         REQUIRE(iterator.lock().value() == 5);
         iterator++;
-        // FIX: But really, we need a proper way to signify end of forward_list
-        REQUIRE((*iterator).value() == 0);
+        REQUIRE(iterator == allocated.end());
 
         pool.deallocate(item);
     }

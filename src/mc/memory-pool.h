@@ -414,6 +414,7 @@ public:
         if(m_free.empty()) return NULLPTR;
 
         item_t& slot = m_free.front();
+        m_free.pop_front();
         m_allocated.push_front(slot);
 
         return &slot;
