@@ -64,7 +64,7 @@ public:
 #endif
 
 protected:
-    const TMemoryChunk _chunk;
+    TMemoryChunk _chunk;
     size_type pos;
 
     ProcessedMemoryChunkBase() : _chunk(), pos(0) {}
@@ -81,6 +81,8 @@ public:
             pos(0) {}
 
     const chunk_t& chunk() const { return _chunk; }
+
+    chunk_t& chunk() { return _chunk; }
 
     // this retrieves processed data
     // to access processed data, go through chunk()
@@ -242,7 +244,7 @@ public:
 
     // TODO: If we can verify C++11 compat, make this a &&
     template <class TMemoryChunk>
-    MemoryChunk(const TMemoryChunk& chunk) :
+    MemoryChunk(TMemoryChunk& chunk) :
         // FIX: We need to split out more ReadOnlyMemoryChunks, for now
         // we have this nasty const-dropper
         base_t((uint8_t*)chunk.data(), chunk.length())
@@ -338,34 +340,54 @@ template <size_t buffer_length>
 class ReadOnlyMemoryChunk
 {
 protected:
+    uint8_t buffer[buffer_length];
 
+public:
+    typedef size_t size_type;
 
+    size_type length() const { return buffer_length; }
+
+    inline int compare(const void* compare_against, size_type length)
+    {
+        return ::memcmp(buffer, compare_against, length);
+    }
+
+    const uint8_t* data(size_type offset = 0) const { return buffer + offset; }
+
+    inline const uint8_t& operator[](size_type index) const
+    {
+        return buffer[index];
+    }
+
+    pipeline::MemoryChunk::readonly_t subset(size_type length) const
+    {
+        // TODO: Assert that length doesn't override boundaries
+
+        return pipeline::MemoryChunk::readonly_t(data(), length);
+    }
 };
 
 template <size_t buffer_length>
 class MemoryChunk : public ReadOnlyMemoryChunk<buffer_length>
 {
-    uint8_t buffer[buffer_length];
-    
 protected:
-    uint8_t* writable_data_experimental(size_t offset = 0) { return buffer + offset; }
-
+    typedef ReadOnlyMemoryChunk<buffer_length> base_t;
 
 public:
     typedef size_t size_type;
 
-    size_t length() const { return buffer_length; }
-    // TODO: Split this out into the readonly variety
-    const uint8_t* data(size_t offset = 0) const { return buffer + offset; }
+    size_type length() const { return buffer_length; }
+
+    uint8_t* data(size_type offset = 0) { return base_t::buffer + offset; }
 
     // copies in length bytes from specified incoming buffer
     // does NOT update this->length(), both syntactically and
     // also because layer1 doesn't track that anyway
-    inline void memcpy(const uint8_t* copy_from, size_t length)
+    inline void memcpy(const uint8_t* copy_from, size_type length)
     {
         ASSERT_ERROR(true, length <= buffer_length, "length <= buffer_length");
 
-        ::memcpy(buffer, copy_from, length);
+        ::memcpy(base_t::buffer, copy_from, length);
     }
 
 
@@ -374,28 +396,15 @@ public:
     // also because layer1 doesn't track that anyway
     inline void copy_from(const pipeline::MemoryChunk::readonly_t& chunk)
     {
-        ::memcpy(buffer, chunk.data(), chunk.length());
+        ::memcpy(base_t::buffer, chunk.data(), chunk.length());
     }
 
 
-    inline void set(uint8_t c) { ::memset(buffer, c, buffer_length); }
+    inline void set(uint8_t c) { ::memset(base_t::buffer, c, buffer_length); }
 
-    inline int compare(const void* compare_against, size_t length)
+    inline uint8_t& operator[](size_type index)
     {
-        return ::memcmp(buffer, compare_against, length);
-    }
-
-    // TODO: Consolidate with "carve_experimental"
-    pipeline::MemoryChunk::readonly_t subset(size_t length) const
-    {
-        // TODO: Assert that length doesn't override boundaries
-
-        return pipeline::MemoryChunk::readonly_t(data(), length);
-    }
-
-    inline uint8_t& operator[](size_t index)
-    {
-        return buffer[index];
+        return base_t::buffer[index];
     }
 };
 
