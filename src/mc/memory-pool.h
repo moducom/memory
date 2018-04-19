@@ -299,15 +299,17 @@ namespace mem {
 template <class T, size_t slots>
 class LinkedListPool
 {
+public:
+    typedef estd::experimental::forward_node<T> item_t;
     typedef estd::forward_list<item_t> list_t;
 
+private:
     item_t items[slots];
 
     list_t m_allocated;
     list_t m_free;
 
 public:
-    typedef estd::experimental::forward_node<T> item_t;
 
     LinkedListPool()
     {
@@ -327,8 +329,19 @@ public:
 
     item_t* allocate()
     {
-        // waiting to get the estd::before_begin iterator
-        //m_free.front();
+        if(m_free.empty()) return NULLPTR;
+
+        item_t& slot = m_free.front();
+        m_allocated.push_front(slot);
+
+        return &slot;
+    }
+
+
+    void deallocate(item_t* item)
+    {
+        //m_allocated.remove(*item);
+        m_free.push_front(*item);
     }
 };
 
