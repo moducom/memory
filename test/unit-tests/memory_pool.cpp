@@ -131,4 +131,8 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         REQUIRE(os.length() == 512);
     }
+    SECTION("LinkedListPool")
+    {
+        moducom::mem::LinkedListPool<int, 4> pool;
+    }
 }

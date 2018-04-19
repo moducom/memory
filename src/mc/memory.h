@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../platform.h"
+#include "mem/platform.h"
 
 namespace moducom { namespace dynamic {
 

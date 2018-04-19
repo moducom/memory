@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../platform.h"
+#include "mem/platform.h"
 #include "../MemoryPool.h"
 
 namespace moducom { namespace dynamic {

@@ -292,13 +292,44 @@ public:
     operator oobp_t() const { return out_of_band(); }
 };
 
+}
 
+namespace mem {
 
 template <class T, size_t slots>
 class LinkedListPool
 {
-public:
+    typedef estd::forward_list<item_t> list_t;
 
+    item_t items[slots];
+
+    list_t m_allocated;
+    list_t m_free;
+
+public:
+    typedef estd::experimental::forward_node<T> item_t;
+
+    LinkedListPool()
+    {
+        // initialize all slots as free
+        item_t* prev = NULLPTR;
+
+        for(item_t& item : items)
+        {
+            if(prev == NULLPTR)
+                m_free.push_front(item);
+            else
+                prev->next(&item);
+
+            prev = &item;
+        }
+    }
+
+    item_t* allocate()
+    {
+        // waiting to get the estd::before_begin iterator
+        //m_free.front();
+    }
 };
 
 
