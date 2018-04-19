@@ -48,16 +48,24 @@ public:
 // FIX: Not a great name, but good enough to be liberated from 'experimental'
 // category.  This class wraps up a memory chunk but adds a 'pos' tracking
 // capability.  It does not commit to *what* kind of processing is done
-template <class TMemoryChunk, typename _size_t = size_t>
+template <class TMemoryChunk
+//#if !(defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
+        , typename _size_t = size_t
+//#endif
+>
 class ProcessedMemoryChunkBase
 {
-protected:
-    const TMemoryChunk _chunk;
+public:
+    typedef TMemoryChunk chunk_t;
 #if defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL)
     typedef decltype(std::declval<TMemoryChunk>().length()) size_type;
 #else
+    typedef size_t size_type;
 #endif
-    _size_t pos;
+
+protected:
+    const TMemoryChunk _chunk;
+    size_type pos;
 
     ProcessedMemoryChunkBase() : _chunk(), pos(0) {}
 
@@ -68,23 +76,24 @@ public:
 
     // FIX: semi-workaround for const/non const variance of chunk_t
     template <typename TData>
-    ProcessedMemoryChunkBase(TData data, _size_t length) :
+    ProcessedMemoryChunkBase(TData data, size_type length) :
             _chunk(data, length),
             pos(0) {}
-
-    typedef TMemoryChunk chunk_t;
-    //typedef typename chunk_t::size_type size_type;
 
     const chunk_t& chunk() const { return _chunk; }
 
     const uint8_t* data() { return _chunk.data(pos); }
 
-    _size_t length() const { return _chunk.length() - pos; }
+    size_type length() const { return _chunk.length() - pos; }
 
     // TODO: Put in bounds check here
     // potentially most visible and distinctive feature of ProcessedMemoryChunk is this
     // call and its "side affect"
-    void advance(_size_t size) { pos += size; }
+    bool advance(size_type size)
+    {
+        pos += size;
+        return true;
+    }
 };
 
 namespace experimental {

@@ -11,6 +11,7 @@
 #ifdef _MSC_VER
 #if _MSVC_LANG >= 201100
 #define __CPP11__
+#define FEATURE_CPP_STRNCPY_S
 #endif
 #if _MSVC_LANG >= 201400
 #define __CPP14__
@@ -19,6 +20,9 @@
 
 #if __cplusplus >= 201103L
 #define __CPP11__
+#endif
+#if __cplusplus >= 201703L
+#define FEATURE_CPP_STRNCPY_S
 #endif
 
 #endif
@@ -32,10 +36,6 @@
 #define FEATURE_CPP_DECLTYPE
 #define FEATURE_CPP_DECLVAL
 
-#ifndef __APPLE__
-// Can't be sure, but seems like apple version of things didn't include strncpy_s
-#define FEATURE_CPP_STRNCPY_S
-#endif
 #else
 #include <stddef.h> // for NULL
 
