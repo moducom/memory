@@ -50,16 +50,81 @@ struct AllocatorRefHelper
 // unlike regular node traits, TValue must be
 // explicitly specified because LinkedListPool itself needs to know
 // it to know slot size in pool
+
+// so far shaping up to look very much like inlinevalue_node_traits
 template <class TValue, size_t slot_count>
 struct LinkedListPoolNodeTraits
 {
     typedef moducom::mem::LinkedListPool<TValue, slot_count> allocator_t;
+    typedef estd::experimental::forward_node_base node_type;
+    typedef node_type* node_handle;
+    typedef node_type* node_pointer;
 
     template <class TValue2>
     struct node_allocator_t
     {
+        static CONSTEXPR bool can_emplace() { return true; }
 
+        // TODO: assert TValue2 == TValue
+
+        allocator_t a;
+
+        node_allocator_t(allocator_t* a) {}
+
+        typedef typename allocator_t::item_t node_type;
+        typedef node_type* node_handle;
+        typedef node_type* node_pointer;
+        typedef const TValue2& nv_ref_t;
+
+        node_pointer alloc(TValue& value)
+        {
+            node_pointer p = a.allocate(sizeof(node_type));
+
+            p->value()(value);
+
+            return p;
+        }
+
+#ifdef FEATURE_CPP_MOVESEMANTIC
+        node_pointer alloc_move(TValue&& value)
+        {
+            node_pointer p = a.allocate(sizeof(node_type));
+
+            p->value()(std::forward<TValue>(value));
+
+            return p;
+        }
+#endif
+
+#ifdef FEATURE_CPP_VARIADIC
+        template <class ...TArgs>
+        node_pointer alloc_emplace(TArgs...args)
+        {
+            node_pointer p = a.allocate(sizeof(node_type));
+
+            new (&p->value()) TValue(args...);
+
+            return p;
+        }
+#endif
+
+        node_pointer lock(node_handle h) { return h; }
+
+        void unlock(node_handle h) {}
     };
+
+    static CONSTEXPR node_handle null_node() { return NULLPTR; }
+
+    static void set_next(node_type& set_on, node_handle next)
+    {
+        set_on.next(next);
+    }
+
+
+    static node_pointer next(node_type& n)
+    {
+        return n.next();
+    }
 };
 
 #ifdef ENABLE_COAP
@@ -254,5 +319,20 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         // nearly there, this has a const qualifier drop somewhere
         //REQUIRE(list.front() == 5);
+    }
+    SECTION("Using LinkedListPoolNodeTraits")
+    {
+        typedef moducom::mem::LinkedListPool<int, 10> llpool_t;
+        typedef AllocatorRefHelper<llpool_t> allocator_t;
+        typedef LinkedListPoolNodeTraits<int, 10> node_traits_t;
+        //typedef typename node_traits_t::allocator_t allocator_t;
+
+        llpool_t pool;
+        allocator_t allocator(pool);
+
+        estd::forward_list<int, node_traits_t> list;
+
+        //list.push_front(5);
+
     }
 }
