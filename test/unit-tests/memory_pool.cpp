@@ -45,6 +45,23 @@ struct AllocatorRefHelper
     }
 };
 
+
+// in attempt to re-use inbuilt next pointer
+// unlike regular node traits, TValue must be
+// explicitly specified because LinkedListPool itself needs to know
+// it to know slot size in pool
+template <class TValue, size_t slot_count>
+struct LinkedListPoolNodeTraits
+{
+    typedef moducom::mem::LinkedListPool<TValue, slot_count> allocator_t;
+
+    template <class TValue2>
+    struct node_allocator_t
+    {
+
+    };
+};
+
 #ifdef ENABLE_COAP
 // Using TestToken because I am not convinced I want to embed "is_allocated" into layer2::Token
 // somewhat harmless, but confusing out of context (what does is_allocated *mean* if token is

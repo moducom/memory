@@ -417,6 +417,8 @@ private:
 
     node_allocator_t node_allocator;
 
+    // NOTE: Don't think we need m_allocated, and if so, we could reuse
+    // item_t.next for application-specific purposes when item is allocated
     list_t m_allocated;
     list_t m_free;
 
