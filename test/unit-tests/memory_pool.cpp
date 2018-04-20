@@ -57,6 +57,7 @@ struct LinkedListPoolNodeTraits
 {
     typedef moducom::mem::LinkedListPool<TValue, slot_count> allocator_t;
     typedef estd::experimental::forward_node_base node_type;
+    typedef estd::experimental::forward_node_base node_type_base;
     typedef node_type* node_handle;
     typedef node_type* node_pointer;
 
@@ -90,7 +91,7 @@ struct LinkedListPoolNodeTraits
         {
             node_pointer p = a.allocate(sizeof(node_type));
 
-            p->value()(std::forward<TValue>(value));
+            new (&p->value()) TValue(std::forward<TValue>(value));
 
             return p;
         }
@@ -98,7 +99,7 @@ struct LinkedListPoolNodeTraits
 
 #ifdef FEATURE_CPP_VARIADIC
         template <class ...TArgs>
-        node_pointer alloc_emplace(TArgs...args)
+        node_pointer alloc_emplace(TArgs&&...args)
         {
             node_pointer p = a.allocate(sizeof(node_type));
 
@@ -108,9 +109,13 @@ struct LinkedListPoolNodeTraits
         }
 #endif
 
-        node_pointer lock(node_handle h) { return h; }
+        node_pointer lock(node_type_base* h)
+        {
+            // FIX
+            return reinterpret_cast<node_pointer>(h);
+        }
 
-        void unlock(node_handle h) {}
+        void unlock(node_type_base* h) {}
     };
 
     static CONSTEXPR node_handle null_node() { return NULLPTR; }
@@ -124,6 +129,14 @@ struct LinkedListPoolNodeTraits
     static node_pointer next(node_type& n)
     {
         return n.next();
+    }
+
+    // NOTE: Something about this I think needs to vary to reuse the underlying
+    // node next pointer.  Not 100% sure though
+    template <class TValue2>
+    static TValue2& value_exp(typename node_allocator_t<TValue2>::node_type& node)
+    {
+        return node.value();
     }
 };
 
@@ -332,7 +345,15 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         estd::forward_list<int, node_traits_t> list;
 
-        //list.push_front(5);
+        REQUIRE(list.empty());
+
+        list.push_front(5);
+
+        REQUIRE(!list.empty());
+
+        auto i = list.begin();
+
+        REQUIRE(*i == 5);
 
     }
 }
