@@ -440,7 +440,7 @@ public:
         }
     }
 
-    item_t* allocate()
+    T* allocate()
     {
         if(m_free.empty()) return NULLPTR;
 
@@ -448,12 +448,23 @@ public:
         m_free.pop_front();
         m_allocated.push_front(slot);
 
-        return &slot;
+        return &slot.value();
     }
 
 
-    void deallocate(item_t* item)
+    void deallocate(T* v)
     {
+        // FIX: Some real trickery here, doing pointer math to figure out
+        // where value actually sits in item, then sliding v backward
+        // so tht it becomes an item_t.  Obviously fragile if we deviate
+        // from using forward_node
+        item_t* item = NULLPTR;
+        uint8_t* offset = (uint8_t*) &item->value();
+        item = (item_t*)(((uint8_t*)v) - offset);
+
+        // TODO: utilize this in a static accessor on forward_node itself
+        //offsetof(item_t, m_value);
+
         m_allocated.remove(*item, true);
         m_free.push_front(*item);
     }

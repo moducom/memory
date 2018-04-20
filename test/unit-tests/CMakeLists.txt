@@ -14,7 +14,7 @@ include_directories(${MC_MEM_DIR})
 
 add_subdirectory(${MC_MEM_DIR} CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
-project(unit-tests)
+project(memlib-unit-tests)
 
 add_executable(${PROJECT_NAME} "main.cpp" "memory_pool.cpp" "memory_test.cpp"
     "string_test.cpp"

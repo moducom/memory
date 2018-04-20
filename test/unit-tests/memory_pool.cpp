@@ -137,18 +137,21 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         typedef llpool_t::item_t item_t;
         llpool_t pool;
 
-        item_t* item = pool.allocate();
+        int* item = pool.allocate();
 
-        item->value() = 5;
+        *item = 5;
 
-        auto allocated = pool.allocated();
+        const auto& allocated = pool.allocated();
         auto iterator = allocated.begin();
 
         REQUIRE(iterator.lock().value() == 5);
         iterator++;
         REQUIRE(iterator == allocated.end());
+        REQUIRE(!allocated.empty());
 
         pool.deallocate(item);
+
+        REQUIRE(allocated.empty());
     }
     SECTION("Experimental pool slot management")
     {
