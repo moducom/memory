@@ -173,4 +173,8 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         // but nearly as I can tell we should in fact be starting with intrusive_node_pool_node_type<int>*
         //REQUIRE(list.front() == 5);
     }
+    SECTION("LinkedListPool as allocator for other linked list")
+    {
+        //estd::forward_list<int>
+    }
 }

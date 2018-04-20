@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "array-helper.h"
 #include <estd/forward_list.h>
+#include "mem/platform.h"
 
 namespace moducom { namespace dynamic {
 
@@ -421,6 +422,20 @@ private:
 
     //list2_t m_allocated2;
 
+    item_t& allocate_internal()
+    {
+        item_t& slot = m_free.front();
+        m_free.pop_front();
+        m_allocated.push_front(slot);
+        return slot;
+    }
+
+    void deallocate_internal(item_t& item)
+    {
+        m_allocated.remove(item, true);
+        m_free.push_front(item);
+    }
+
 public:
     const list_t& allocated() const { return m_allocated; }
 
@@ -444,11 +459,7 @@ public:
     {
         if(m_free.empty()) return NULLPTR;
 
-        item_t& slot = m_free.front();
-        m_free.pop_front();
-        m_allocated.push_front(slot);
-
-        return &slot.value();
+        return &allocate_internal().value();
     }
 
 
@@ -465,9 +476,36 @@ public:
         // TODO: utilize this in a static accessor on forward_node itself
         //offsetof(item_t, m_value);
 
-        m_allocated.remove(*item, true);
-        m_free.push_front(*item);
+        deallocate_internal(*item);
     }
+
+    typedef item_t* handle_type;
+
+    // allocator_traits conformant methods
+    handle_type allocate(size_t size)
+    {
+        if(m_free.empty()) return NULLPTR;
+
+        ASSERT_WARN(true, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
+        ASSERT_ERROR(true, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
+
+        return &allocate_internal();
+    }
+
+    void deallocate(handle_type p, size_t size)
+    {
+        ASSERT_WARN(true, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
+        ASSERT_ERROR(true, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
+
+        deallocate(*p);
+    }
+
+    T* lock(handle_type p)
+    {
+        return &p->value();
+    }
+
+    void unlock(handle_type p) {}
 };
 
 
