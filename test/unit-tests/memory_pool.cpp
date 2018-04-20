@@ -159,8 +159,15 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         typedef estd::forward_list<value_type, node_traits_t> list2_t;
 
         list2_t list;
-        value_type value = 5;
+        node_type value;
 
-        //list.push_front(value);
+        value.value() = 5;
+
+        list.push_front(value);
+
+        // following doesn't quite work yet, compiler tells me I'm
+        // trying to convert int& to intrusive_node_pool_node_type<int>,
+        // but nearly as I can tell we should in fact be starting with intrusive_node_pool_node_type<int>*
+        //REQUIRE(list.front() == 5);
     }
 }

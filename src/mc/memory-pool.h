@@ -298,6 +298,33 @@ namespace mem {
 
 namespace experimental {
 
+
+class intrusive_node_pool_node
+{
+    typedef uint8_t node_handle;
+
+    node_handle m_next;
+
+public:
+    void next(const node_handle& n) { m_next = n; }
+    node_handle next() const { return m_next; }
+
+};
+
+
+template <class TValue>
+class intrusive_node_pool_node_type : public intrusive_node_pool_node
+{
+    typedef TValue value_type;
+
+    value_type m_value;
+
+public:
+    value_type& value() { return m_value; }
+
+    const value_type& value() const { return m_value; }
+};
+
 // this is where we have a pool of T, so in this case T
 // and node are a bit different, but still no allocation goes on
 // (operates very similar to forward_node)
@@ -308,22 +335,9 @@ public:
     typedef TSize size_type;
     typedef uint8_t handle_type;
     typedef T value_type;
+    typedef intrusive_node_pool_node_type<value_type> node_type;
 
-    class node_type
-    {
-        handle_type m_next;
-        value_type m_value;
-
-    public:
-        void next(const handle_type& n) { m_next = n; }
-        handle_type next() const { return m_next; }
-
-        value_type& value() { return value; }
-
-        const value_type& value() const { return value; }
-    };
-
-    typedef value_type& nv_ref_t;
+    typedef node_type& nv_ref_t;
     typedef node_type* node_pointer;
 
 private:
@@ -334,8 +348,14 @@ public:
     // item in the pool, but the whole point of this allocator is to be locker
     // which translates slot# into pointers, so that an external party can actually
     // search through the linked list to find a slot.  Kinda complex, I know
-    template <typename TValue>
-    node_pointer alloc(TValue& value) { return &value; }
+    //template <typename TValue>
+    handle_type alloc(node_type& value)
+    {
+        ptrdiff_t d = ((uint8_t*)&value) - ((uint8_t*) pool);
+
+        return d / sizeof(value_type);
+        //return &value;
+    }
 
     void dealloc(node_pointer node) {}
 
@@ -354,6 +374,17 @@ public:
     typedef estd::nothing_allocator allocator_t;
 
     static CONSTEXPR node_handle null_node() { return 0xFF; }
+
+    static void set_next(intrusive_node_pool_node& set_on, node_handle& next)
+    {
+        set_on.next(next);
+    }
+
+    template <class TValue>
+    static TValue& value_exp(intrusive_node_pool_node_type<TValue>& node)
+    {
+        return node.value();
+    }
 
 #ifdef FEATURE_CPP_ALIASTEMPLATE
     template <class TValue>
