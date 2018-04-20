@@ -389,7 +389,7 @@ public:
 
 #ifdef FEATURE_CPP_ALIASTEMPLATE
     template <class TValue>
-    using test_node_allocator_t = intrusive_node_pool_allocator<TValue, 10>;
+    using node_allocator_t = intrusive_node_pool_allocator<TValue, 10>;
 #endif
 };
 
@@ -404,7 +404,7 @@ public:
     // since they all will be living in items slots
     //typedef experimental::non_allocating_node_lock_pool_resolver<T, slots> node_allocator_t;
     typedef experimental::intrusive_node_pool_traits node_traits_t;
-    typedef typename node_traits_t::test_node_allocator_t<T> node_allocator_t;
+    typedef typename node_traits_t::node_allocator_t<T> node_allocator_t;
     typedef typename node_allocator_t::node_type node_type;
     typedef estd::forward_list<node_type, node_traits_t> list2_t;
     // ---
@@ -479,23 +479,30 @@ public:
         deallocate_internal(*item);
     }
 
-    typedef item_t* handle_type;
-
     // allocator_traits conformant methods
+    typedef item_t* handle_type;
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef const void* const_void_pointer;
+
+    typedef estd::nothing_allocator::lock_counter lock_counter;
+
+    static CONSTEXPR handle_type invalid() { return NULLPTR; }
+
     handle_type allocate(size_t size)
     {
-        if(m_free.empty()) return NULLPTR;
+        if(m_free.empty()) return invalid();
 
-        ASSERT_WARN(true, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
-        ASSERT_ERROR(true, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
+        ASSERT_WARN(false, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
+        ASSERT_ERROR(false, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
 
         return &allocate_internal();
     }
 
     void deallocate(handle_type p, size_t size)
     {
-        ASSERT_WARN(true, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
-        ASSERT_ERROR(true, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
+        ASSERT_WARN(false, size < sizeof(item_t), "LinkedListPool requested size smaller than pool item");
+        ASSERT_ERROR(false, size > sizeof(item_t), "LinkedListPool requested size larger than pool item");
 
         deallocate(*p);
     }

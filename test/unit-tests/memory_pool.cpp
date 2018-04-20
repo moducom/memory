@@ -10,6 +10,41 @@
 
 using namespace moducom::dynamic;
 
+
+// useful because we prefer to keep direct allocator value rather than
+// reference around in node_traits so that stateless allocators use no
+// instance space
+template <class TAllocator>
+struct AllocatorRefHelper
+{
+    TAllocator& a;
+
+    AllocatorRefHelper(TAllocator& a) : a(a) {}
+
+    typedef typename TAllocator::pointer pointer;
+    typedef typename TAllocator::handle_type handle_type;
+    typedef typename TAllocator::value_type value_type;
+    typedef typename TAllocator::const_void_pointer const_void_pointer;
+
+    typedef typename TAllocator::lock_counter lock_counter;
+
+    handle_type allocate(size_t size) { return a.allocate(size); }
+
+    void deallocate(handle_type p, size_t size)
+    {
+        a.deallocate(p, size);
+    }
+
+    pointer lock(handle_type h) { return a.lock(h); }
+
+    void unlock(handle_type h) { a.unlock(h); }
+
+    static CONSTEXPR handle_type invalid()
+    {
+        return TAllocator::invalid();
+    }
+};
+
 #ifdef ENABLE_COAP
 // Using TestToken because I am not convinced I want to embed "is_allocated" into layer2::Token
 // somewhat harmless, but confusing out of context (what does is_allocated *mean* if token is
@@ -157,7 +192,7 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     {
         typedef int value_type;
         typedef moducom::mem::experimental::intrusive_node_pool_traits node_traits_t;
-        typedef typename node_traits_t::test_node_allocator_t<value_type> node_allocator_t;
+        typedef typename node_traits_t::node_allocator_t<value_type> node_allocator_t;
         typedef typename node_allocator_t::node_type node_type;
         typedef estd::forward_list<value_type, node_traits_t> list2_t;
 
@@ -175,6 +210,32 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     }
     SECTION("LinkedListPool as allocator for other linked list")
     {
-        //estd::forward_list<int>
+        typedef moducom::mem::LinkedListPool<int, 10> llpool_t;
+        typedef AllocatorRefHelper<llpool_t> allocator_t;
+        typedef estd::inlinevalue_node_traits<
+                estd::experimental::forward_node_base,
+                allocator_t> node_traits_t;
+
+        llpool_t pool;
+        allocator_t allocator(pool);
+
+        // FIX: allocator_t initialization still clumsy, because we like
+        // having 'empty' allocators we can pass around.  We are
+        // interrupting purely inline value allocators from comfortably
+        // existing
+        estd::forward_list<int, node_traits_t> list(&allocator);
+
+        REQUIRE(list.empty());
+
+        list.push_front(5);
+
+        REQUIRE(!list.empty());
+
+        auto i = list.begin();
+
+        REQUIRE(*i == 5);
+
+        // nearly there, this has a const qualifier drop somewhere
+        //REQUIRE(list.front() == 5);
     }
 }
