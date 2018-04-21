@@ -43,6 +43,9 @@ struct AllocatorRefHelper
     {
         return TAllocator::invalid();
     }
+
+    template <class TNode>
+    using typed_handle = estd::typed_handle<TNode, TAllocator>;
 };
 
 

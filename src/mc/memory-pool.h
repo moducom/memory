@@ -335,6 +335,7 @@ class intrusive_node_pool_allocator
 public:
     typedef TSize size_type;
     typedef uint8_t handle_type;
+    typedef handle_type node_handle;
     typedef T value_type;
     typedef intrusive_node_pool_node_type<value_type> node_type;
 
@@ -411,6 +412,13 @@ public:
 
     typedef estd::experimental::forward_node<T> item_t;
     typedef estd::forward_list<item_t> list_t;
+
+#ifdef FEATURE_CPP_ALIASTEMPLATE
+    // redundancy in TValue because LinkedListPool is sitting in as an Allocator type
+    // which usually services all kinds of values
+    template <class TValue>
+    using typed_handle = estd::typed_handle<T, LinkedListPool>;
+#endif
 
 private:
     item_t items[slots];

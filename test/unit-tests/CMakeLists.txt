@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_CXX_STANDARD 11)
 
+project(memlib-unit-tests)
+
 add_definitions(-Werror=reorder)
 
 set(MC_MEM_DIR ../../src)
@@ -12,9 +14,7 @@ include_directories(${ESTDLIB_DIR})
 INCLUDE_DIRECTORIES(../../ext/Catch/single_include)
 include_directories(${MC_MEM_DIR})
 
-add_subdirectory(${MC_MEM_DIR} CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-
-project(memlib-unit-tests)
+add_subdirectory(${MC_MEM_DIR} mcmem)
 
 add_executable(${PROJECT_NAME} "main.cpp" "memory_pool.cpp" "memory_test.cpp"
     "string_test.cpp"

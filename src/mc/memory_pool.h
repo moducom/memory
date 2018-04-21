@@ -94,6 +94,8 @@ public:
 
             case Indexed2:
                 return lock_index2(handle);
+
+            default: break;
         }
 
         return NULLPTR;
@@ -105,6 +107,8 @@ public:
         {
             case Indexed2:
                 get_sys_page_index2().unlock(handle, pages[0], page_size);
+
+            default: break;
         }
     }
 
@@ -338,6 +342,8 @@ public:
 
             case Indexed2:
                 return get_free_index2();
+
+            default: break;
         }
 
         return -1;
