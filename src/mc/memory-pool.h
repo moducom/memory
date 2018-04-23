@@ -342,6 +342,8 @@ public:
     typedef node_type& nv_ref_t;
     typedef node_type* node_pointer;
 
+    typedef estd::nothing_allocator<T> allocator_t;
+
 private:
     node_type pool[slots];
 
@@ -372,8 +374,6 @@ class intrusive_node_pool_traits
 {
 public:
     typedef uint8_t node_handle;
-
-    typedef estd::nothing_allocator allocator_t;
 
     static CONSTEXPR node_handle null_node() { return 0xFF; }
 
@@ -412,13 +412,6 @@ public:
 
     typedef estd::experimental::forward_node<T> item_t;
     typedef estd::forward_list<item_t> list_t;
-
-#ifdef FEATURE_CPP_ALIASTEMPLATE
-    // redundancy in TValue because LinkedListPool is sitting in as an Allocator type
-    // which usually services all kinds of values
-    template <class TValue>
-    using typed_handle = estd::typed_handle<T, LinkedListPool>;
-#endif
 
 private:
     item_t items[slots];
@@ -495,7 +488,7 @@ public:
     typedef value_type* pointer;
     typedef const void* const_void_pointer;
 
-    typedef estd::nothing_allocator::lock_counter lock_counter;
+    typedef typename estd::nothing_allocator<T>::lock_counter lock_counter;
 
     static CONSTEXPR handle_type invalid() { return NULLPTR; }
 
