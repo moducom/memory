@@ -391,6 +391,11 @@ public:
 #ifdef FEATURE_CPP_ALIASTEMPLATE
     template <class TValue>
     using node_allocator_t = intrusive_node_pool_allocator<TValue, 10>;
+#else
+    template <class TValue>
+    struct node_allocator_t : public intrusive_node_pool_allocator<TValue, 10>
+    {
+    };
 #endif
 };
 
@@ -447,8 +452,14 @@ public:
         // initialize all slots as free
         item_t* prev = NULLPTR;
 
+#ifdef FEATURE_CPP_RANGED_FORLOOPS
         for(item_t& item : items)
         {
+#else
+        for(int i = 0 ; i < slots; i++)
+        {
+            item_t& item = items[i];
+#endif
             if(prev == NULLPTR)
                 m_free.push_front(item);
             else
