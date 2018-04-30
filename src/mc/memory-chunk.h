@@ -74,6 +74,8 @@ protected:
 
     ProcessedMemoryChunkBase() : _chunk(), pos(0) {}
 
+    void reset() { pos = 0; }
+
 public:
     ProcessedMemoryChunkBase(const TMemoryChunk& _chunk) :
             _chunk(_chunk),

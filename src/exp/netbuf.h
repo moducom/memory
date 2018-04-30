@@ -41,9 +41,38 @@ public:
 
     // Placeholder for moving back to first buffer.  For this simple NetBufMemory, it's a noop
     void first() {}
+
+protected:
 };
 
 
+template <std::size_t default_size = 1024, class TAllocator = std::allocator<uint8_t> >
+class NetBufDynamicMemory : public pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk>
+{
+    typedef pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk> base_t;
+    //typedef allocator_traits<TAllocator> at_t;
+    TAllocator a;
+
+public:
+    NetBufDynamicMemory() :
+        base_t(a.allocate(default_size), default_size)
+    {
+    }
+
+
+    ~NetBufDynamicMemory()
+    {
+        a.deallocate(chunk().data(), default_size);
+    }
+
+    // Move forward to next net buf once we've exhausted this one
+    // (noop for netbuf memory writer, if you're out of space, you're
+    // screwed)
+    bool next() { return false; }
+
+    // Placeholder for moving back to first buffer.  For this simple NetBufMemory, it's a noop
+    void first() {}
+};
 
 namespace layer2 {
 
@@ -184,6 +213,8 @@ protected:
 
 // a thinner wrapper around netbuf, mainly adding convenience methods for
 // writes
+// NOTE: If we do, once again, go back to the writer managing 'pos' variable, we could
+// theoretically make NetBufWriter more of a 'MemoryChunkWriter'
 template <class TNetBuf>
 class NetBufWriter
 {
