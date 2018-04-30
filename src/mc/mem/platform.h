@@ -1,5 +1,7 @@
 #pragma once
 
+#include "estd/../platform.h"
+
 //#define DEBUG
 // TODO: Identify a better way to identify presence of C++ iostreams
 #if __ADSPBLACKFIN__ || defined(__unix__) || defined(_MSC_VER) || (defined (__APPLE__) && defined (__MACH__))
@@ -25,23 +27,6 @@
 #define FEATURE_CPP_STRNCPY_S
 #endif
 
-#endif
-
-// TODO: find "most" standardized version of this
-#ifdef __CPP11__
-#define OVERRIDE override
-#define CONSTEXPR constexpr
-#define NULLPTR nullptr
-
-#define FEATURE_CPP_DECLTYPE
-#define FEATURE_CPP_DECLVAL
-
-#else
-#include <stddef.h> // for NULL
-
-#define OVERRIDE
-#define CONSTEXPR const
-#define NULLPTR NULL
 #endif
 
 #if __ADSPBLACKFIN__ || defined(_MSC_VER)
