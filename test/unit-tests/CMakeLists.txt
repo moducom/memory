@@ -16,8 +16,10 @@ include_directories(${MC_MEM_DIR})
 
 add_subdirectory(${MC_MEM_DIR} mcmem)
 
-add_executable(${PROJECT_NAME} "main.cpp" "memory_pool.cpp" "memory_test.cpp"
-    "string_test.cpp"
+add_executable(${PROJECT_NAME}
+    "main.cpp"
+    "memory_pool.cpp"
+    "memory_test.cpp"
     "integrity.cpp"
     "netbuf.cpp"
     experimental.cpp memory-chunk.cpp)

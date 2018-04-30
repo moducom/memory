@@ -2,7 +2,7 @@
 #include <catch.hpp>
 
 #include "MemoryPool.h"
-#include "mc/string.h"
+//#include "mc/string.h"
 
 // Not really using it, and isn't behaving on macOS
 //#include <malloc.h>

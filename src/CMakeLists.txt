@@ -19,12 +19,11 @@ set(SOURCE_FILES
         mc/memory_index.h
         mc/memory_index2.h
         mc/memory_pool.h
-        mc/string.h
         mc/objstack.h
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h
-        string.cpp exp/netbuf.h mc/netbuf.h)
+        exp/netbuf.h mc/netbuf.h)
 
 add_library(moducom_memory_lib ${SOURCE_FILES})
 
