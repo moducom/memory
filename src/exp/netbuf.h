@@ -46,7 +46,7 @@ protected:
 };
 
 
-template <std::size_t default_size = 1024, class TAllocator = std::allocator<uint8_t> >
+template < ::std::size_t default_size = 1024, class TAllocator = ::std::allocator<uint8_t> >
 class NetBufDynamicMemory : public pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk>
 {
     typedef pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk> base_t;
