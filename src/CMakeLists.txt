@@ -23,6 +23,7 @@ set(SOURCE_FILES
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h
+        exp/llpool.h
         exp/netbuf.h mc/netbuf.h)
 
 add_library(moducom_memory_lib ${SOURCE_FILES})

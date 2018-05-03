@@ -6,6 +6,7 @@
 #include <cstring>
 #include "platform.h"
 #include "exp/netbuf.h"
+#include "exp/llpool.h"
 
 using namespace moducom::io::experimental;
 
@@ -57,5 +58,41 @@ TEST_CASE("Experimental tests", "[experimental]")
 
         REQUIRE(chunk.data() == netbuf.unprocessed());
         REQUIRE(chunk2.data() == netbuf.unprocessed());
+    }
+    SECTION("Latest memory pool incarnation")
+    {
+        moducom::mem::experimental::LinkedListPool2<int, 10> pool;
+        int sz = sizeof(pool);
+
+        REQUIRE(pool.count_free() == 10);
+
+        int h = pool.allocate(1);
+
+        REQUIRE(h == 0);
+        REQUIRE(pool.count_free() == 9);
+
+        pool.lock(h) = 5;
+
+        int h1 = pool.allocate(1);
+
+        REQUIRE(h1 == 1);
+        REQUIRE(pool.count_free() == 8);
+    }
+    SECTION("Latest memory pool incarnation 2")
+    {
+        moducom::mem::experimental::LinkedListPool2<char[5], 10> pool;
+        int sz = sizeof(pool);
+
+        int h = pool.allocate(1);
+
+        REQUIRE(h == 0);
+
+        //pool.lock(h) = 5;
+
+        int h1 = pool.allocate(1);
+
+        REQUIRE(h1 == 1);
+
+        pool.deallocate(h, 1);
     }
 }
