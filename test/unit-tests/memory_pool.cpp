@@ -368,4 +368,15 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 #endif
 
     }
+    SECTION("LinkedListPoolNodeTraits 2")
+    {
+        typedef moducom::mem::LinkedListPool<int, 10> llpool_t;
+
+        /* limitation of template template parameter.
+         * still haven't cracked this nut
+        estd::forward_list<int, estd::inlinevalue_node_traits<
+                estd::experimental::forward_node_base,
+                moducom::mem::LinkedListPool<int, 10> >
+                list; */
+    }
 }
