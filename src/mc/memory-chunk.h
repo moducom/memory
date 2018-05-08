@@ -425,11 +425,11 @@ namespace layer2 {
 // Variant of layer2.  buffer pointer NOT used, but size field IS used
 template<size_t buffer_length, class TSize = size_t>
 class MemoryChunk :
-        public MemoryChunkBase<>,
+        public MemoryChunkBase<TSize>,
         public layer1::MemoryChunk<buffer_length>
 {
     typedef layer1::MemoryChunk<buffer_length> base_t;
-    typedef MemoryChunkBase<> base2_t;
+    typedef MemoryChunkBase<TSize> base2_t;
     typedef typename base2_t::size_type size_type;
 
 public:
@@ -437,7 +437,7 @@ public:
     MemoryChunk(size_type length = buffer_length) { this->length(length); }
 
     inline size_type length() const { return base2_t::m_length; }
-    inline void length(size_type l) { base2_t:m_length = l; }
+    inline void length(size_type l) { this->m_length = l; }
 
     inline void set(uint8_t ch) { base_t::set(ch); }
 
