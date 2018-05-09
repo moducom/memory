@@ -18,3 +18,7 @@ For moving bulk data from one place to another
 * layer 4: mid-level. buffers inline (pointers avoided). virtual functions allowed
   * layer 4 is currently experimental and subject to change definition.
 * layer 5: mid-level. buffer pointers used. virtual functions allowed
+
+## library.json
+
+Assists platform.io tooling

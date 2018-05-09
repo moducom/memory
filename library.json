@@ -1,0 +1,21 @@
+{
+    "name": "mc-mem",
+    "keywords": "memory management",
+    "description": "Memory Management library - alpha level",
+    "version": "0.1.0",
+    "authors": "Malachi Burke",
+    "repository":
+    {
+        "type": "git",
+        "url": "https://github.com/moducom/memory.git"
+    },
+    "build": {
+        "flags": "-Isrc",
+        "srcFilter": [
+            "+<src/*>",
+            "-<test>",
+            "-<src/old>"
+        ] 
+    },
+    "frameworks": "*"
+}
