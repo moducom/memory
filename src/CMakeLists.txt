@@ -23,6 +23,9 @@ set(SOURCE_FILES
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h
+
+        platform/lwip/lwip-netbuf.h
+
         exp/llpool.h
         exp/netbuf.h mc/netbuf.h)
 
