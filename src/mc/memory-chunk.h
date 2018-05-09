@@ -14,6 +14,9 @@
 // for uint8_t and friends
 #include <stdint.h>
 
+// for declval/decltype
+#include <utility>
+
 #include "mem/platform.h"
 
 namespace moducom { namespace pipeline {

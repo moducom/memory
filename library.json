@@ -3,7 +3,10 @@
     "keywords": "memory management",
     "description": "Memory Management library - alpha level",
     "version": "0.1.0",
-    "authors": "Malachi Burke",
+    "authors": 
+    {
+        "name": "Malachi Burke"
+    },
     "repository":
     {
         "type": "git",
@@ -12,7 +15,7 @@
     "build": {
         "flags": "-Isrc",
         "srcFilter": [
-            "+<src/*>",
+            "+<src/**>",
             "-<test>",
             "-<src/old>"
         ] 
