@@ -42,6 +42,10 @@ public:
     // Placeholder for moving back to first buffer.  For this simple NetBufMemory, it's a noop
     void first() {}
 
+    // returns whether we're at the last 'next' chunk
+    // (false means next() call will reveal additional chunk)
+    bool end() const { return true; }
+
 protected:
 };
 
@@ -208,6 +212,12 @@ protected:
     // TODO: for netbuf, modify APIs slightly to be more C++ std lib like, specifically
     // a size/capacity/max_size kind of thing
     netbuf_t m_netbuf;
+
+public:
+    netbuf_t& netbuf()
+    {
+        return this->m_netbuf;
+    }
 };
 
 
@@ -271,8 +281,6 @@ public:
     {
         if(len > size()) len = size();
 
-        // FIX: ugly, netbuf itself really needs to drop const, at least when
-        // it's a writeable netbuf
         memcpy(netbuf().unprocessed(), d, len);
         bool advance_success = advance(len);
 
