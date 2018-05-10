@@ -130,7 +130,7 @@ protected:
     uint8_t* m_data;
 
 
-#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
+#ifdef FEATURE_MC_MEM_REWRITABLE_MEMCHUNK
     ReadOnlyMemoryChunk() {}
 #endif
 
@@ -249,7 +249,7 @@ public:
 
 // Not recommended, but might be necessary under some conditions.  An
 // in-place new probably preferred
-#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
+#ifdef FEATURE_MC_MEM_REWRITABLE_MEMCHUNK
     void length(size_t l) { this->m_length = l; }
     void data(uint8_t* value) { m_data = value; }
 #endif
@@ -270,7 +270,7 @@ public:
     }
 
     // this constructor only viable with rewritable feature
-#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
+#ifdef FEATURE_MC_MEM_REWRITABLE_MEMCHUNK
     MemoryChunk() {}
 #endif
 
@@ -323,7 +323,7 @@ public:
         return MemoryChunk(m_data + pos, m_length - pos);
     }
 
-#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
+#ifdef FEATURE_MC_MEM_REWRITABLE_MEMCHUNK
     // Would prefer memorychunk itself to be more constant, perhaps we can
     // have a "ProcessedMemoryChunk" which includes a pos in it... ? or maybe
     // instead a ConstMemoryChunk just for those occasions..
@@ -553,7 +553,7 @@ public:
 
     Status* status;
 
-#ifdef FEATURE_MCCOAP_REWRITABLE_MEMCHUNK
+#ifdef FEATURE_MC_MEM_REWRITABLE_MEMCHUNK
     PipelineMessage() : status(NULLPTR) {}
 #endif
 
