@@ -44,6 +44,12 @@ public:
         return chunk_t(data, len);
     }
 
+    // FIX: ugly, error prone
+    const bool end() const
+    {
+        return m_end;
+    }
+
     // this retrieves processed data
     // to access processed data, go through chunk()
     uint8_t* unprocessed() { return chunk().data(pos); }
