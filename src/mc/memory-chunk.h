@@ -121,9 +121,12 @@ public:
 namespace experimental {
 
 // basically layer3 variety here
-class ReadOnlyMemoryChunk : public MemoryChunkBase<>
+template <class TSize = size_t>
+class ReadOnlyMemoryChunk : public MemoryChunkBase<TSize>
 {
 protected:
+    typedef MemoryChunkBase<TSize> base_t;
+
     uint8_t* m_data;
 
 
@@ -134,7 +137,7 @@ protected:
     ReadOnlyMemoryChunk(uint8_t* data, size_t length) :
         m_data(data)
     {
-        m_length = length;
+        base_t::m_length = length;
     }
 
     // NOTE: Untested.  Protected because it will accept non-const data()
@@ -167,7 +170,7 @@ public:
         // all MemoryChunks inherit from ReadOnly is neat, but likely better served
         // by move/conversion operators
         m_data = (uint8_t*)data;
-        m_length = N;
+        base_t::m_length = N;
     }
 
     // creates new memorychunk via copy of direct string pointer,
@@ -189,7 +192,7 @@ public:
     // at pos
     inline ReadOnlyMemoryChunk remainder(size_t pos) const
     {
-        return ReadOnlyMemoryChunk(m_data + pos, length() - pos);
+        return ReadOnlyMemoryChunk(m_data + pos, base_t::length() - pos);
     }
 
     // Somewhat opposite of remainder, create new chunk from the
@@ -204,14 +207,14 @@ public:
     // copies out of this chunk to array
     inline void copy_to(void* _copy_to) const
     {
-        ::memcpy(_copy_to, m_data, length());
+        ::memcpy(_copy_to, m_data, base_t::length());
     }
 
     // copies up to copy_to_length (or length(), if smaller) to
     // _copy_to
     inline size_t copy_to(void* _copy_to, size_t copy_to_length) const
     {
-        if(length() > copy_to_length)
+        if(base_t::length() > copy_to_length)
         {
             ::memcpy(_copy_to, m_data, copy_to_length);
             return copy_to_length;
@@ -219,7 +222,7 @@ public:
         else
         {
             copy_to(_copy_to);
-            return length();
+            return base_t::length();
         }
     }
 
@@ -236,13 +239,13 @@ public:
 //       MemoryDescriptor: promises data pointer and length
 //       MemoryChunk: promises inline data itself, and its implicit length -
 //          and adheres the MemoryDescriptor "concept" / signature
-class MemoryChunk : public experimental::ReadOnlyMemoryChunk
+class MemoryChunk : public experimental::ReadOnlyMemoryChunk<>
 {
-    typedef experimental::ReadOnlyMemoryChunk base_t;
+    typedef experimental::ReadOnlyMemoryChunk<> base_t;
 
 public:
     // interim type
-    typedef experimental::ReadOnlyMemoryChunk readonly_t;
+    typedef experimental::ReadOnlyMemoryChunk<> readonly_t;
 
 // Not recommended, but might be necessary under some conditions.  An
 // in-place new probably preferred

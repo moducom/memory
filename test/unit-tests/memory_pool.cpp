@@ -313,6 +313,7 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     {
         typedef moducom::mem::LinkedListPool<int, 10> llpool_t;
         typedef AllocatorRefHelper<llpool_t::item_t> allocator_t;
+#ifdef UNUSED
         typedef estd::inlinevalue_node_traits<
                 estd::experimental::forward_node_base,
                 AllocatorRefHelper> node_traits_t;
@@ -322,7 +323,6 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         // FIX: node_traits behavior in flux, especially allocator.  Disable
         // this test for now
-#ifdef UNUSED
         // FIX: allocator_t initialization still clumsy, because we like
         // having 'empty' allocators we can pass around.  We are
         // interrupting purely inline value allocators from comfortably
