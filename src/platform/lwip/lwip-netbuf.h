@@ -33,6 +33,8 @@ public:
         is_incoming(is_incoming)
          {}
 
+    netbuf* native() const { return m_netbuf; }
+
     const chunk_t chunk() const
     {
         uint8_t* data;
