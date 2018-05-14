@@ -36,6 +36,7 @@ class LwipNetbuf
         // before chaining to another - which was a soft requirement before, anyway
         uint16_t total_length = m_netbuf->p->tot_len;
 
+        // remember p is the head of the ll chain, and ptr is our current PBUF position
         total_length -= m_netbuf->ptr->len;
         total_length += pos;
 
@@ -102,7 +103,10 @@ public:
     // FIX: ugly, error prone
     const bool end() const
     {
-        return m_end;
+        //return m_end;
+        // according to http://www.nongnu.org/lwip/2_0_x/group__pbuf.html, this is
+        // a reliable way to see if you are at the last pbuf
+        return m_netbuf->ptr->len == m_netbuf->ptr->tot_len;
     }
 
     // this retrieves processed data
@@ -143,8 +147,13 @@ public:
 
         switch(result)
         {
+            // means this was the last fragment available
             case -1: return false;
+
+            // means more fragments available
             case 0: return true;
+
+            // means this is the last fragment available
             case 1:
                 m_end = true;
                 return true;
