@@ -20,6 +20,9 @@ set(SOURCE_FILES
         mc/memory_index2.h
         mc/memory_pool.h
         mc/objstack.h
+        mc/opts.h
+        mc/opts-internal.h
+
         memory.cpp
         MemoryPool.cpp
         MemoryPool.h

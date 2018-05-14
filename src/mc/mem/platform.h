@@ -1,6 +1,7 @@
 #pragma once
 
 #include "estd/../platform.h"
+#include <mc/opts-internal.h>
 
 //#define DEBUG
 // TODO: Identify a better way to identify presence of C++ iostreams
