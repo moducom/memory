@@ -29,6 +29,19 @@ class LwipNetbuf
     // datapump to know about two TNetBufs
     bool is_incoming;
 
+    uint16_t compute_total_length() const
+    {
+        // We'll want the PBUF->tot_len - (last PBUF)->len + (processed len)
+        // this puts a hard requirement that chunk/pbuf's must be filled COMPLETELY
+        // before chaining to another - which was a soft requirement before, anyway
+        uint16_t total_length = m_netbuf->p->tot_len;
+
+        total_length -= m_netbuf->ptr->len;
+        total_length += pos;
+
+        return total_length;
+    }
+
 public:
     // TODO: eventually phase this out or make friend-protected
     //LwipNetbuf() {}
@@ -107,6 +120,11 @@ public:
             return chunk().length();
         else
             return pos;
+    }
+
+    size_type length_total() const
+    {
+        return compute_total_length();
     }
 
 
