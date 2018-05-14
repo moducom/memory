@@ -9,6 +9,13 @@
 
 namespace moducom { namespace coap {
 
+// here's an end-to-end netbuf usage example, however it seems pretty terrible:
+// http://www.ecoscentric.com/ecospro/doc/html/ref/lwip-api-sequential-netconn-send.html
+// problems include:
+// 1) netconn_delete is called on a netbuf
+// 2) netbuf_free is never called to get rid of the alloc
+// 3) example doesn't make clear what happens with the 'data' data when issuing the
+//    2nd netconn_send call
 class LwipNetbuf
 {
     netbuf* m_netbuf;
@@ -24,7 +31,17 @@ class LwipNetbuf
 
 public:
     // TODO: eventually phase this out or make friend-protected
-    LwipNetbuf() {}
+    //LwipNetbuf() {}
+    // NOTE: Not sure I like specifying size here
+    LwipNetbuf(uint16_t size = 1024) :
+        m_end(false),
+        pos(0),
+        is_incoming(false) // FIX: assumes outgoing packet , since incoming are often allocated by tranport-aware code
+        // but outgoing are often allocated by transport-unaware code
+    {
+        m_netbuf = netbuf_new();
+        netbuf_alloc(m_netbuf, size);
+    }
 
     LwipNetbuf(netbuf* nb, bool is_incoming) :
         m_netbuf(nb),
@@ -32,6 +49,29 @@ public:
         pos(0),
         is_incoming(is_incoming)
          {}
+
+#ifdef FEATURE_CPP_MOVESEMANTIC
+    LwipNetbuf(LwipNetbuf&& move_from) :
+        m_netbuf(move_from.m_netbuf),
+        m_end(move_from.m_end),
+        pos(move_from.pos),
+        is_incoming(move_from.is_incoming)
+    {
+        move_from.m_netbuf = NULLPTR;
+    }
+#endif
+
+
+    ~LwipNetbuf()
+    {
+        // FIX: checking is_incoming flag only so that we deallocate
+        // netbufs we ourselves allocated.  Seems very much not good
+        if(m_netbuf != NULLPTR && is_incoming)
+        {
+            netbuf_free(m_netbuf);
+            netbuf_delete(m_netbuf);
+        }
+    }
 
     netbuf* native() const { return m_netbuf; }
 
