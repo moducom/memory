@@ -7,7 +7,7 @@
 
 #include <lwip/netbuf.h>
 
-namespace moducom { namespace coap {
+namespace moducom { namespace mem {
 
 // here's an end-to-end netbuf usage example, however it seems pretty terrible:
 // http://www.ecoscentric.com/ecospro/doc/html/ref/lwip-api-sequential-netconn-send.html
@@ -21,7 +21,7 @@ class LwipNetbuf
     netbuf* m_netbuf;
     bool m_end;
     typedef pipeline::MemoryChunk chunk_t;
-    typedef size_t size_type;
+    typedef uint16_t size_type;
     size_type pos;
 
     // true for incoming netbufs, out for outgoing
@@ -96,6 +96,7 @@ public:
     // to access processed data, go through chunk()
     uint8_t* unprocessed() { return chunk().data(pos); }
 
+    // remember processed and unprocessed length & data ONLY apply to current chunk (pbuf)
     const uint8_t* processed() const { return chunk().data(); }
 
     size_type length_unprocessed() const { return chunk().length() - pos; }
@@ -116,7 +117,11 @@ public:
 
     bool next()
     {
+        // TODO: Dig deeper into pbuf portion instead
+        // to ascertain our end() status
         int8_t result = netbuf_next(m_netbuf);
+
+        pos = 0;
 
         switch(result)
         {
@@ -141,6 +146,20 @@ public:
         pos += size;
         return true;
     }
+};
+
+template <>
+struct netbuf_traits<LwipNetbuf>
+{
+    typedef uint16_t size_type;
+
+    // Make this specialized for YOUR particular netbuf type
+    // http://www.nongnu.org/lwip/2_0_x/group__lwip__opts__pbuf.html indicates that PBUF
+    // allocates at minimum TCP_MSS for ipv4/ipv6 payload
+    static CONSTEXPR size_type minimum_chunk_size() { return TCP_MSS; }
+    // Netbufs by nature are multichunk.  If your implementation is not, indicate as
+    // such here
+    static CONSTEXPR bool single_chunk() { return false; }
 };
 
 }}

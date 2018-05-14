@@ -4,8 +4,24 @@
 
 #include "../mc/memory-chunk.h"
 
-namespace moducom { namespace io { namespace experimental {
+namespace moducom { namespace mem {
 
+template <class TNetBuf>
+struct netbuf_traits
+{
+    typedef size_t size_type;
+
+    // Make this specialized for YOUR particular netbuf type
+    static CONSTEXPR size_type minimum_chunk_size() { return sizeof(int); }
+    // Netbufs by nature are multichunk.  If your implementation is not, indicate as
+    // such here
+    static CONSTEXPR bool single_chunk() { return false; }
+};
+
+
+}}
+
+namespace moducom { namespace io { namespace experimental {
 
 // netbufs are inherently read and write, so wrap them up
 // with reader and writer to create compiler-friendly divisions
