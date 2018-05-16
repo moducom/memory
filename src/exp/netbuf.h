@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "../mc/memory-chunk.h"
+#include <estd/string.h>
 
 namespace moducom { namespace mem {
 
@@ -285,19 +286,27 @@ public:
     {
         // TODO: add true/false on advance to underlying netbuf itself to aid in runtime
         // detection of boundary failure
-        netbuf().advance(amount);
-        return true;
+        return netbuf().advance(amount);
     }
 
     // returns available unprocessed bytes
     size_type size() const { return netbuf().length_unprocessed(); }
+
+    uint8_t* data() { return netbuf().unprocessed(); }
+
+    // TODO: next should return a tri-state, success, fail, or pending
+    bool next() { return netbuf().next(); }
+
+    // TODO: make a netbuf-native version of this call, and/or do
+    // some extra trickery to ensure chunk() is always efficient
+    size_type max_size() { return netbuf().chunk().size; }
 
 
     size_type write(const void* d, int len)
     {
         if(len > size()) len = size();
 
-        memcpy(netbuf().unprocessed(), d, len);
+        memcpy(data(), d, len);
         bool advance_success = advance(len);
 
         ASSERT_ERROR(true, advance_success, "Problem advancing through netbuf");
@@ -318,6 +327,37 @@ public:
         return copied;
     }
 
+    template <int N>
+    size_type write(uint8_t (&d) [N])
+    {
+        return write(d, N);
+    }
+
+    template <int N>
+    size_type write(const uint8_t (&d) [N])
+    {
+        return write(d, N);
+    }
+
+    bool putchar(uint8_t byte)
+    {
+        netbuf().unprocessed()[0] = byte;
+        return this->advance(1);
+    }
 };
+
+
+template <class TNetBuf>
+NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw, uint8_t byte)
+{
+    nbw.putchar(byte);
+}
+
+/* needs freshened estdlib first
+template <class TNetBuf, class TChar, class TTraits, class TAllocator>
+NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw,
+                                   const estd::basic_string<TChar, TTraits, TAllocator>& str)
+{
+} */
 
 }}}
