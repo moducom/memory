@@ -4,6 +4,7 @@
 #include "mc/memory-chunk.h"
 
 using namespace moducom::pipeline;
+using namespace moducom::mem;
 
 TEST_CASE("Memory chunk tests", "[memory-chunk]")
 {

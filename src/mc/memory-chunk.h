@@ -52,7 +52,9 @@ public:
     size_type length() const { return m_length; }
 };
 
+} // pipeline
 
+namespace mem {
 // FIX: Not a great name, but good enough to be liberated from 'experimental'
 // category.  This class wraps up a memory chunk but adds a 'pos' tracking
 // capability.  It does not commit to *what* kind of processing is done
@@ -118,6 +120,9 @@ public:
     }
 };
 
+}
+
+namespace pipeline {
 namespace experimental {
 
 // basically layer3 variety here
@@ -338,7 +343,7 @@ public:
 
 // General purpose ProcessedMemoryChunk, targets regular (non layered)
 // MemoryChunk
-class ProcessedMemoryChunk : public ProcessedMemoryChunkBase<MemoryChunk>
+class ProcessedMemoryChunk : public mem::ProcessedMemoryChunkBase<MemoryChunk>
 {
 public:
     ProcessedMemoryChunk(const MemoryChunk& chunk) :

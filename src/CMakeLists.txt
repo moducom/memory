@@ -11,8 +11,6 @@ add_subdirectory(${ESTDLIB_DIR} estdlib)
 set(SOURCE_FILES
         mc/mem/platform.h
         mc/array-helper.h
-        mc/linkedlist.cpp
-        mc/linkedlist.h
         mc/memory-chunk.h
         mc/memory-pool.h
         mc/memory.h

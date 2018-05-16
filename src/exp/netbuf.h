@@ -33,19 +33,19 @@ template <class TMemoryChunk
         >
 class NetBufMemoryTemplate :
 #if (defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
-        public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk>
+        public moducom::mem::ProcessedMemoryChunkBase<TMemoryChunk>
 #else
-        public moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize>
+        public moducom::mem::ProcessedMemoryChunkBase<TMemoryChunk, TSize>
 #endif
 {
 public:
     typedef TMemoryChunk chunk_t;
 #if (defined(FEATURE_CPP_DECLTYPE) && defined(FEATURE_CPP_DECLVAL))
-    typedef moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk> base_t;
+    typedef moducom::mem::ProcessedMemoryChunkBase<TMemoryChunk> base_t;
     typedef decltype(std::declval<TMemoryChunk>().length()) size_type;
 #else
     typedef TSize size_t;
-    typedef moducom::pipeline::ProcessedMemoryChunkBase<TMemoryChunk, TSize> base_t;
+    typedef moducom::mem::ProcessedMemoryChunkBase<TMemoryChunk, TSize> base_t;
 #endif
 
 public:
@@ -68,9 +68,9 @@ protected:
 
 
 template < ::std::size_t default_size = 1024, class TAllocator = ::std::allocator<uint8_t> >
-class NetBufDynamicMemory : public pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk>
+class NetBufDynamicMemory : public mem::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk>
 {
-    typedef pipeline::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk> base_t;
+    typedef mem::ProcessedMemoryChunkBase<moducom::pipeline::MemoryChunk> base_t;
     //typedef allocator_traits<TAllocator> at_t;
     TAllocator a;
 
@@ -225,16 +225,35 @@ class NetBufReader
 protected:
     typedef TNetBuf netbuf_t;
 
-    // outgoing network buffer
+    // incoming network buffer
     // TODO: for netbuf, modify APIs slightly to be more C++ std lib like, specifically
     // a size/capacity/max_size kind of thing
     netbuf_t m_netbuf;
 
+    typedef int size_type;
+
 public:
-    netbuf_t& netbuf()
+    template <class TNetBufInitParam>
+    NetBufReader(TNetBufInitParam& netbufinitparam) :
+            m_netbuf(netbufinitparam)
+    {}
+
+    bool advance(size_type amount)
+    {
+        // TODO: add true/false on advance to underlying netbuf itself to aid in runtime
+        // detection of boundary failure
+        return netbuf().advance(amount);
+    }
+
+    const netbuf_t& netbuf() const
     {
         return this->m_netbuf;
     }
+
+    // returns available processed bytes (typically should be same as chunk size)
+    size_type size() const { return netbuf().length_processed(); }
+
+    const uint8_t* data() { return netbuf().processed(); }
 };
 
 
@@ -299,6 +318,9 @@ public:
 
     // TODO: make a netbuf-native version of this call, and/or do
     // some extra trickery to ensure chunk() is always efficient
+    // NOTE: Be advised max_size is only chunk size, not 'total' size
+    //       it seems max_size *should* be total size, perhaps we can
+    //       call chunk-size 'capacity'
     size_type max_size() { return netbuf().chunk().size; }
 
 
@@ -353,11 +375,12 @@ NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw, uint8_t byte)
     nbw.putchar(byte);
 }
 
-/* needs freshened estdlib first
 template <class TNetBuf, class TChar, class TTraits, class TAllocator>
 NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw,
                                    const estd::basic_string<TChar, TTraits, TAllocator>& str)
 {
-} */
+    nbw.write(str);
+    return nbw;
+}
 
 }}}

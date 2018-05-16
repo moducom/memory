@@ -28,4 +28,13 @@ TEST_CASE("NetBuf tests")
 
         REQUIRE(writer.size() == 1024 - 9);
     }
+    SECTION("Writing strings")
+    {
+        NetBufWriter<NetBufDynamicMemory<> > writer;
+        estd::layer1::string<64> s = "Hello there!";
+
+        writer << s;
+
+        REQUIRE(writer.netbuf().length_processed() == s.size());
+    }
 }
