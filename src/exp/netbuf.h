@@ -51,6 +51,11 @@ public:
 public:
     NetBufMemoryTemplate() {}
 
+    template <class TMemoryChunkInitParam>
+    NetBufMemoryTemplate(const TMemoryChunkInitParam& p) :
+        base_t(p)
+    {}
+
     // Move forward to next net buf once we've exhausted this one
     // (noop for netbuf memory writer, if you're out of space, you're
     // screwed)
