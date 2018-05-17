@@ -166,6 +166,18 @@ public:
     }
 
 
+    ReadOnlyMemoryChunk(const ReadOnlyMemoryChunk& copy_from) :
+    // NOTE: semi faking this because regular MemoryChunk derives from
+    // this class.  One step short of a kludge if we are careful to really
+    // const our way through all of ReadOnlyMemoryChunk
+            m_data(copy_from.m_data)
+            //m_length(copy_from.m_length)
+    {
+        this->m_length = copy_from.m_length;
+    }
+
+
+
     template <size_t N>
     ReadOnlyMemoryChunk(const uint8_t (&data) [N])
     {
