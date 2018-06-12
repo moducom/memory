@@ -4,7 +4,6 @@
 #include <catch.hpp>
 
 #include <cstring>
-#include "platform.h"
 #include "exp/netbuf.h"
 #include "exp/llpool.h"
 

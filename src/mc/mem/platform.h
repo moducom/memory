@@ -1,6 +1,6 @@
 #pragma once
 
-#include "estd/../platform.h"
+#include "estd/internal/platform.h"
 #include <mc/opts-internal.h>
 
 //#define DEBUG

@@ -1,6 +1,5 @@
 #include "catch.hpp"
 
-#include "platform.h"
 #include "mc/memory-chunk.h"
 
 using namespace moducom::pipeline;
