@@ -138,22 +138,25 @@ public:
 };
 
 
+template <class T>
+struct LinkedListPool3Node : public estd::experimental::forward_node_base
+{
+    T value;
+};
+
+
 // 6/13/2018
 // like the 10th crack at this
 // This one works, and let's keep this simple.  For allocator compatibility, I want to contain
 // this in a different class
-template <class T, size_t N>
+template <class T, size_t N, class TContainer = estd::array<LinkedListPool3Node<T>, N> >
 class LinkedListPool3
 {
 public:
-    //typedef estd::experimental::forward_node<T> node_t;
-    struct node_t : public estd::experimental::forward_node_base
-    {
-        T value;
-    };
+    typedef typename TContainer::value_type node_t;
 
 private:
-    typedef estd::array<node_t, N> array_t;
+    typedef TContainer array_t;
     typedef estd::intrustive_forward_list<node_t> list_t;
 
     list_t free_nodes;
