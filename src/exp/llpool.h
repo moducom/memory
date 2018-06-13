@@ -145,7 +145,14 @@ public:
 template <class T, size_t N>
 class LinkedListPool3
 {
-    typedef estd::experimental::forward_node<T> node_t;
+public:
+    //typedef estd::experimental::forward_node<T> node_t;
+    struct node_t : public estd::experimental::forward_node_base
+    {
+        T value;
+    };
+
+private:
     typedef estd::array<node_t, N> array_t;
     typedef estd::intrustive_forward_list<node_t> list_t;
 

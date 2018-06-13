@@ -383,12 +383,29 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
     SECTION("LinkedListPool3")
     {
         CONSTEXPR int size = 10;
-        moducom::mem::experimental::LinkedListPool3<int, size> pool;
-        typedef estd::experimental::forward_node<int> node_t;
+        typedef moducom::mem::experimental::LinkedListPool3<int, size> list_t;
+        list_t pool;
+        typedef list_t::node_t node_t;
+        // we can reuse the forward_node_base portion to construct our own 'allocated'
+        // linked list.  A secondary but nifty feature of LinkedListPool
+        estd::intrustive_forward_list<node_t> user_list;
 
         node_t* node = pool.alloc();
+        node->value = 5;
+        user_list.push_front(*node);
         REQUIRE(pool.available() == 9);
+        node_t* node2 = pool.alloc();
+        node2->value = 6;
+        user_list.push_front(*node2);
+        REQUIRE(pool.available() == 8);
+        auto i = user_list.begin();
+        REQUIRE((*i++).value == 6);
+        REQUIRE((*i++).value == 5);
+        REQUIRE(i == user_list.end());
+        //user_list.clear();
+        // Beware this puts user_list into an undefined state!
         pool.free(node);
+        pool.free(node2);
         REQUIRE(pool.available() == 10);
     }
 }
