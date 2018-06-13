@@ -291,6 +291,9 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         typedef moducom::mem::experimental::intrusive_node_pool_traits node_traits_t;
         typedef typename node_traits_t::node_allocator_t<value_type> node_allocator_t;
         typedef typename node_allocator_t::node_type node_type;
+        // FIX: node_traits behavior in flux, especially allocator.  Disable
+        // this test for now
+#ifdef UNUSED
         typedef estd::forward_list<value_type, node_traits_t> list2_t;
 
         list2_t list;
@@ -298,16 +301,13 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
 
         value.value() = 5;
 
-        // FIX: node_traits behavior in flux, especially allocator.  Disable
-        // this test for now
-#ifdef UNUSED
         list.push_front(value);
-#endif
 
         // following doesn't quite work yet, compiler tells me I'm
         // trying to convert int& to intrusive_node_pool_node_type<int>,
         // but nearly as I can tell we should in fact be starting with intrusive_node_pool_node_type<int>*
         //REQUIRE(list.front() == 5);
+#endif
     }
     SECTION("LinkedListPool as allocator for other linked list")
     {
@@ -353,9 +353,9 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         llpool_t pool;
         allocator_t allocator(pool);
 
+#ifdef UNUSED
         estd::forward_list<int, node_traits_t> list;
 
-#ifdef UNUSED
         REQUIRE(list.empty());
 
         list.push_front(5);

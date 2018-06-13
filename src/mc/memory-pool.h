@@ -412,11 +412,11 @@ public:
     typedef experimental::intrusive_node_pool_traits node_traits_t;
     typedef typename node_traits_t::node_allocator_t<T> node_allocator_t;
     typedef typename node_allocator_t::node_type node_type;
-    typedef estd::forward_list<node_type, node_traits_t> list2_t;
+    //typedef estd::forward_list<node_type, node_traits_t> list2_t;
     // ---
 
     typedef estd::experimental::forward_node<T> item_t;
-    typedef estd::forward_list<item_t> list_t;
+    typedef estd::intrustive_forward_list<item_t> list_t;
 
 private:
     item_t items[slots];
