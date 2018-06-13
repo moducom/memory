@@ -7,6 +7,7 @@
 #include "../coap-token.h"
 #endif
 #include "mc/objstack.h"
+#include "exp/llpool.h"
 
 using namespace moducom::dynamic;
 
@@ -378,5 +379,16 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
                 estd::experimental::forward_node_base,
                 moducom::mem::LinkedListPool<int, 10> >
                 list; */
+    }
+    SECTION("LinkedListPool3")
+    {
+        CONSTEXPR int size = 10;
+        moducom::mem::experimental::LinkedListPool3<int, size> pool;
+        typedef estd::experimental::forward_node<int> node_t;
+
+        node_t* node = pool.alloc();
+        REQUIRE(pool.available() == 9);
+        pool.free(node);
+        REQUIRE(pool.available() == 10);
     }
 }

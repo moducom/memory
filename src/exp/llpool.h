@@ -3,6 +3,10 @@
 #include <cstddef> // for size_t
 
 #include <estd/forward_list.h>
+#include <estd/array.h>
+
+#include <iterator>
+#include <algorithm>
 
 namespace moducom { namespace mem { namespace experimental {
 
@@ -130,6 +134,70 @@ public:
 
         front().next(current_front);
 
+    }
+};
+
+
+// 6/13/2018
+// like the 10th crack at this
+// This one works, and let's keep this simple.  For allocator compatibility, I want to contain
+// this in a different class
+template <class T, size_t N>
+class LinkedListPool3
+{
+    typedef estd::experimental::forward_node<T> node_t;
+    typedef estd::array<node_t, N> array_t;
+    typedef estd::intrustive_forward_list<node_t> list_t;
+
+    list_t free_nodes;
+    array_t raw;
+
+public:
+    LinkedListPool3()
+    {
+        typename array_t::iterator i = raw.begin();
+        node_t* current = &(*i);
+
+        free_nodes.push_front(*current);
+
+        while(++i != raw.end())
+        {
+            node_t& next = *i;
+
+            current->next(&next);
+            current = &next;
+        }
+    }
+
+    node_t* alloc()
+    {
+        node_t& front = free_nodes.front();
+        free_nodes.pop_front();
+        return &front;
+    }
+
+
+    // NOTE: behavior is undefined if incoming node_t is NOT
+    // contained in raw
+    void free(node_t* node)
+    {
+        free_nodes.push_front(*node);
+    }
+
+    size_t max_size() const { return N; }
+
+    // returns number of unallocated slots
+    size_t available() const
+    {
+        size_t count = 0;
+        typename list_t::iterator i = free_nodes.begin();
+
+        for(; i != free_nodes.end(); i++) count++;
+
+        return count;
+        //return std::count(free_nodes.begin(), free_nodes.end());
+
+        //return std::distance(free_nodes.begin(), free_nodes.end());
     }
 };
 
