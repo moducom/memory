@@ -101,7 +101,7 @@ public:
     }
 
     // FIX: ugly, error prone
-    const bool end() const
+    bool end() const
     {
         //return m_end;
         // according to http://www.nongnu.org/lwip/2_0_x/group__pbuf.html, this is

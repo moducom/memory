@@ -76,7 +76,12 @@ public:
         // the sanity_check is what might not match differential, though
         // if we are super (perhaps overly) explicit about our free operations
         // it will match
+        // ESP_IDF generates a bazillion warnings and we don't inspect this
+        // in that environment anyway
+#ifndef ESP_PLATFORM
         size_t sanity_check_size = ((Descriptor*)m_data)->size;
+#endif
+
 #endif
     }
 
