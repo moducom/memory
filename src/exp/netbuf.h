@@ -334,7 +334,12 @@ public:
         if(len > size()) len = size();
 
         memcpy(data(), d, len);
-        bool advance_success = advance(len);
+
+#ifndef ESP_PLATFORM
+        // Generates annoying warnings for ESP 
+        bool advance_success = 
+#endif
+        advance(len);
 
         ASSERT_ERROR(true, advance_success, "Problem advancing through netbuf");
 
