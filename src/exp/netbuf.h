@@ -278,10 +278,16 @@ protected:
     netbuf_t m_netbuf;
 
 public:
+#ifdef FEATURE_CPP_MOVESEMANTIC
+    template <class ...TArgs>
+    NetBufWriter(TArgs&&...args) :
+        m_netbuf(std::forward<TArgs>(args)...) {}
+#else
     template <class TNetBufInitParam>
     NetBufWriter(TNetBufInitParam& netbufinitparam) :
             m_netbuf(netbufinitparam)
     {}
+#endif
 
     NetBufWriter() {}
 
