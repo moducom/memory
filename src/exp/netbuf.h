@@ -391,9 +391,9 @@ NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw, uint8_t byte)
     nbw.putchar(byte);
 }
 
-template <class TNetBuf, class TChar, class TTraits, class TAllocator>
+template <class TNetBuf, class TChar, class TTraits, class TAllocator, class TStringTraits>
 NetBufWriter<TNetBuf>& operator <<(NetBufWriter<TNetBuf>& nbw,
-                                   const estd::basic_string<TChar, TTraits, TAllocator>& str)
+                                   const estd::basic_string<TChar, TTraits, TAllocator, TStringTraits>& str)
 {
     nbw.write(str);
     return nbw;
