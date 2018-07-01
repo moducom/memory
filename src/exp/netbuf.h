@@ -337,7 +337,15 @@ public:
 
     size_type write(const void* d, int len)
     {
-        if(len > size()) len = size();
+        if(len > size())
+        {
+            size_type expand_by = size() - len;
+            // TODO: Attempt an expand, one of the perks of a netbuf
+            // However, do it more near the end, since and expand is not
+            // gaurunteed to be contiguous
+            //netbuf().expand(expand_by);
+            len = size();
+        }
 
         memcpy(data(), d, len);
 
