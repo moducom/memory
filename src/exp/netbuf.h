@@ -105,7 +105,12 @@ public:
     ~NetBufDynamicMemory()
     {
         if(chunk().data() != NULLPTR)
+        {
             a.deallocate(chunk().data(), default_size);
+            // FIX: Gotta do this because queue.pop calls this, but then
+            // when queue fully deallocates it gets called again
+            new (&_chunk) base_t::chunk_t(NULLPTR, 0);
+        }
     }
 
     // Move forward to next net buf once we've exhausted this one
