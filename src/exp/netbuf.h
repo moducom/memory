@@ -92,6 +92,13 @@ public:
     {
 
     }
+
+    // cheap and nasty copy constructor
+    NetBufDynamicMemory(const NetBufDynamicMemory& copy_from) :
+        base_t(a.allocate(copy_from.chunk().length()), copy_from.chunk().length())
+    {
+        memcpy(chunk().data(), copy_from.chunk().data(), chunk().length());
+    }
 #endif
 
 
