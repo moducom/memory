@@ -92,6 +92,18 @@ public:
             _chunk(data, length),
             pos(0) {}
 
+#ifdef FEATURE_CPP_MOVESEMANTIC
+    ProcessedMemoryChunkBase(ProcessedMemoryChunkBase&& move_from) :
+        _chunk(move_from.chunk()),
+        pos(move_from.pos)
+    {
+        new (&move_from._chunk) TMemoryChunk(NULLPTR, 0);
+        move_from.pos = 0;
+    }
+
+    ProcessedMemoryChunkBase(const ProcessedMemoryChunkBase&) = default;
+#endif
+
     const chunk_t& chunk() const { return _chunk; }
 
     chunk_t& chunk() { return _chunk; }

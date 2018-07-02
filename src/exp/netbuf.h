@@ -85,10 +85,20 @@ public:
     {
     }
 
+#ifdef FEATURE_CPP_MOVESEMANTIC
+    NetBufDynamicMemory(NetBufDynamicMemory&& move_from) :
+        base_t(std::move(move_from)),
+        a(move_from.a)
+    {
+
+    }
+#endif
+
 
     ~NetBufDynamicMemory()
     {
-        a.deallocate(chunk().data(), default_size);
+        if(chunk().data() != NULLPTR)
+            a.deallocate(chunk().data(), default_size);
     }
 
     // Move forward to next net buf once we've exhausted this one
