@@ -416,7 +416,7 @@ public:
     // ---
 
     typedef estd::experimental::forward_node<T> item_t;
-    typedef estd::intrustive_forward_list<item_t> list_t;
+    typedef estd::intrusive_forward_list<item_t> list_t;
 
 private:
     item_t items[slots];
