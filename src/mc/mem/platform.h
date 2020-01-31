@@ -1,16 +1,22 @@
 #pragma once
 
-#include "estd/internal/platform.h"
+#include <estd/internal/platform.h>
 #include <mc/opts-internal.h>
 
 //#define DEBUG
-// TODO: Identify a better way to identify presence of C++ iostreams
-#if __ADSPBLACKFIN__ || defined(__unix__) || defined(_MSC_VER) || (defined (__APPLE__) && defined (__MACH__))
-// NOTE: Have not tested whether blackfin is properly included here (should be)
-#define FEATURE_MCCOAP_IOSTREAM_NATIVE
-#define FEATURE_MCCOAP_ASSERT_ENABLE
+// TODO: Account for some kind of estd-flavor ostream also
+#ifdef FEATURE_ESTD_IOSTREAM_NATIVE
+// TODO: Identify a better way to identify presence of C++ std::cerr
+#if __ADSPBLACKFIN__
+// blackfin doesn't have cerr, and probably others don't also
+#define MCMEM_CERR  ::std::cout
+#else
+#define MCMEM_CERR  ::std::cerr
+#endif
+#define FEATURE_MCMEM_ASSERT_ENABLE
 #endif
 
+// TODO: Consolidate all this into estd
 #ifdef _MSC_VER
 #if _MSVC_LANG >= 201100
 #define __CPP11__
@@ -57,19 +63,19 @@ typedef double float64_t;
 #endif
 
 // TODO: Make this generate log warnings or something
-#ifdef FEATURE_MCCOAP_ASSERT_ENABLE
+#ifdef FEATURE_MCMEM_ASSERT_ENABLE
 #include <iostream>
 #define ASSERT(expected, actual) if((expected) != (actual)) \
-{ ::std::cerr << "ASSERT: (" << __func__ << ") " << ::std::endl; }
+{ MCMEM_CERR << "ASSERT: (" << __func__ << ") " << ::std::endl; }
 // This will generate warnings but the program will keep going
 #define ASSERT_WARN(expected, actual, message) if((expected) != (actual)) \
-{ ::std::cerr << "WARN: (" << __func__ << ") " << message << ::std::endl; }
+{ MCMEM_CERR << "WARN: (" << __func__ << ") " << message << ::std::endl; }
 // This will generate a warning and issue a 'return' statement immediately
 #define ASSERT_ABORT(expected, actual, message)
 // This will halt the program with a message
 // One may *carefully* use << syntax within message
 #define ASSERT_ERROR(expected, actual, message) if((expected) != (actual)) \
-{ ::std::cerr << "ERROR: (" << __func__ << ") " << message << ::std::endl; }
+{ MCMEM_CERR << "ERROR: (" << __func__ << ") " << message << ::std::endl; }
 #else
 #define ASSERT(expected, actual)
 // This will generate warnings but the program will keep going
