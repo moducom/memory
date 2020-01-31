@@ -157,7 +157,7 @@ public:
 
 private:
     typedef TContainer array_t;
-    typedef estd::intrustive_forward_list<node_t> list_t;
+    typedef estd::intrusive_forward_list<node_t> list_t;
 
     list_t free_nodes;
     array_t raw;

@@ -388,7 +388,7 @@ TEST_CASE("Low-level memory pool tests", "[mempool-low]")
         typedef list_t::node_t node_t;
         // we can reuse the forward_node_base portion to construct our own 'allocated'
         // linked list.  A secondary but nifty feature of LinkedListPool
-        estd::intrustive_forward_list<node_t> user_list;
+        estd::intrusive_forward_list<node_t> user_list;
 
         node_t* node = pool.alloc();
         node->value = 5;

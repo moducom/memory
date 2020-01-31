@@ -6,6 +6,10 @@ project(memlib-unit-tests)
 
 add_definitions(-Werror=reorder)
 
+# Legacy option -- remember this whole module is legacy, so re-enabling this just
+# so that tests run as we phase out module overall
+add_definitions(-DFEATURE_ESTD_ALLOCATOR_LOCKCOUNTER)
+
 set(MC_MEM_DIR ../../src)
 set(ESTDLIB_DIR ../../ext/estdlib/src)
 
